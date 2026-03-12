@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>portfolio-v2 — Color System Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: #09090B; color: #FAFAFA;
+      padding: 48px 32px; max-width: 1200px; margin: 0 auto; line-height: 1.5;
+    }
+    .page-title { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 6px; }
+    .page-sub { font-size: 14px; color: #71717A; margin-bottom: 56px; }
+    .sec-title {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #52525B; margin-bottom: 20px; padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .section { margin-bottom: 72px; }
+    .desc { font-size: 13px; color: #71717A; margin-bottom: 24px; line-height: 1.6; max-width: 640px; }
+    hr { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 56px 0; }
+
+    /* ── ACCENT GRID ── */
+    .accent-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    .accent-card {
+      border-radius: 14px; padding: 22px;
+      background: #111118; border: 1px solid rgba(255,255,255,0.07);
+      position: relative;
+    }
+    .accent-card.rec::before {
+      content: 'Recommended'; position: absolute; top: -1px; right: 16px;
+      background: #8B5CF6; color: #fff; font-size: 10px; font-weight: 700;
+      padding: 3px 10px; border-radius: 0 0 8px 8px; letter-spacing: 0.05em;
+    }
+    .ac-name { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 3px; }
+    .ac-hex { font-size: 11px; color: #71717A; font-family: monospace; margin-bottom: 14px; }
+    .shade-row { display: flex; gap: 3px; margin-bottom: 18px; }
+    .shade { height: 24px; flex: 1; border-radius: 5px; }
+
+    /* mini components */
+    .label { font-size: 10px; color: #52525B; margin-bottom: 5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+    .mini-btn {
+      display: inline-flex; align-items: center; padding: 7px 14px;
+      border-radius: 7px; font-size: 12px; font-weight: 700; border: none; cursor: default; color: #fff;
+    }
+    .mini-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid;
+    }
+    .glow-card { border-radius: 9px; padding: 12px; border: 1px solid; font-size: 12px; }
+    .chip { display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; border: 1px solid; }
+    .mc-col { display: flex; flex-direction: column; gap: 10px; }
+
+    /* A indigo */
+    .btn-a { background: #6366F1; }
+    .badge-a { background: rgba(99,102,241,.15); color: #A5B4FC; border-color: rgba(99,102,241,.25); }
+    .gcard-a { background: rgba(99,102,241,.08); border-color: rgba(99,102,241,.2); color: #C7D2FE; box-shadow: 0 0 20px rgba(99,102,241,.15); }
+    .chip-a { background: rgba(99,102,241,.1); border-color: rgba(99,102,241,.2); color: #A5B4FC; }
+    /* B violet */
+    .btn-b { background: #8B5CF6; }
+    .badge-b { background: rgba(139,92,246,.15); color: #C4B5FD; border-color: rgba(139,92,246,.25); }
+    .gcard-b { background: rgba(139,92,246,.08); border-color: rgba(139,92,246,.2); color: #DDD6FE; box-shadow: 0 0 24px rgba(139,92,246,.2); }
+    .chip-b { background: rgba(139,92,246,.1); border-color: rgba(139,92,246,.2); color: #C4B5FD; }
+    /* C purple */
+    .btn-c { background: #A855F7; }
+    .badge-c { background: rgba(168,85,247,.15); color: #D8B4FE; border-color: rgba(168,85,247,.25); }
+    .gcard-c { background: rgba(168,85,247,.08); border-color: rgba(168,85,247,.2); color: #E9D5FF; box-shadow: 0 0 28px rgba(168,85,247,.25); }
+    .chip-c { background: rgba(168,85,247,.1); border-color: rgba(168,85,247,.2); color: #D8B4FE; }
+    .ac-note { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.06); font-size: 11px; color: #52525B; }
+
+    /* ── GLOW DEMO ── */
+    .glow-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    .gd {
+      border-radius: 14px; padding: 28px 20px; border: 1px solid;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .gd::before {
+      content: ''; position: absolute; top: -50%; left: 50%; transform: translateX(-50%);
+      width: 160px; height: 160px; border-radius: 50%; filter: blur(50px); opacity: .3;
+    }
+    .gd-a { background: #0F0F15; border-color: rgba(99,102,241,.2); }
+    .gd-a::before { background: #6366F1; }
+    .gd-b { background: #0F0F15; border-color: rgba(139,92,246,.2); }
+    .gd-b::before { background: #8B5CF6; }
+    .gd-c { background: #0F0F15; border-color: rgba(168,85,247,.2); }
+    .gd-c::before { background: #A855F7; }
+    .gd-val { font-size: 40px; font-weight: 800; letter-spacing: -0.05em; position: relative; }
+    .gd-lbl { font-size: 11px; color: #71717A; margin-top: 4px; position: relative; }
+    .gd-tag { display: inline-block; margin-top: 12px; padding: 3px 10px; border-radius: 5px; font-size: 10px; font-weight: 700; position: relative; }
+
+    /* ── NEUTRAL SYSTEM ── */
+    .neutral-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 32px; }
+    .nt { font-size: 13px; font-weight: 700; margin-bottom: 14px; color: #A1A1AA; }
+    .nr { display: flex; align-items: center; gap: 12px; padding: 5px 0; }
+    .ns { width: 34px; height: 34px; border-radius: 7px; flex-shrink: 0; border: 1px solid rgba(255,255,255,.08); }
+    .ni-name { font-size: 12px; font-weight: 600; }
+    .ni-hex { font-size: 10px; color: #71717A; font-family: monospace; }
+    .ni-use { font-size: 10px; color: #52525B; }
+    .sem-row { display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap; }
+    .sem { display: flex; align-items: center; gap: 10px; }
+    .sem-dot { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── COMPONENT SHOWCASE ── */
+    .showcase-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    .sc { border-radius: 14px; padding: 22px; border: 1px solid rgba(255,255,255,.07); }
+    .sc-dark { background: #111118; }
+    .sc-light { background: #FAFAF8; border-color: rgba(0,0,0,.08); }
+    .sc-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .sc-light .sc-label { border-bottom-color: rgba(0,0,0,.06); }
+
+    .nav { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-radius: 8px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,.07); background: rgba(9,9,11,.8); }
+    .nav-l { background: rgba(255,255,255,.95); border-color: rgba(0,0,0,.06); }
+    .logo { font-size: 13px; font-weight: 800; letter-spacing: -0.03em; }
+    .nav-links { display: flex; gap: 14px; }
+    .nl { font-size: 11px; font-weight: 500; color: #71717A; }
+    .cta { font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 6px; border: none; cursor: default; color: #fff; }
+
+    .hero-ey { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px; }
+    .hero-h { font-size: 21px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 7px; }
+    .hero-sub { font-size: 11px; line-height: 1.6; color: #71717A; margin-bottom: 12px; }
+    .hero-sub-l { color: #71717A; }
+
+    .mpair { display: flex; gap: 6px; margin-bottom: 12px; }
+    .mchip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 6px; font-size: 11px; font-weight: 600; border: 1px solid; }
+    .mchip-d { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08); color: #A1A1AA; }
+    .mchip-l { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.08); color: #52525B; }
+    .live { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #22C55E; }
+    .live::before { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background: #22C55E; box-shadow: 0 0 6px #22C55E; }
+
+    .pcard { border-radius: 9px; padding: 13px; border: 1px solid; }
+    .pcard-d { background: #18181F; }
+    .pcard-l { background: #fff; }
+    .pc-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 7px; }
+    .pc-title { font-size: 13px; font-weight: 700; letter-spacing: -0.01em; }
+    .pc-meta { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+    .stk { display: inline-flex; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; font-family: monospace; }
+    .pc-desc { font-size: 11px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+<p class="page-title">portfolio-v2 — Color System Preview</p>
+<p class="page-sub">Dark base · Violet/Purple accent family · Plus Jakarta Sans · Glow effects</p>
+
+<!-- ═══════ 01 ACCENT OPTIONS ═══════ -->
+<div class="section">
+  <p class="sec-title">01 — Accent Color Options (chọn 1 trong 3)</p>
+  <p class="desc">Ba tông violet/purple khác nhau. Full shade scale 50→950 + component preview + glow.</p>
+  <div class="accent-grid">
+
+    <!-- A: Indigo -->
+    <div class="accent-card">
+      <div class="ac-name">A — Indigo</div>
+      <div class="ac-hex">#6366F1 · Cool blue-violet</div>
+      <div class="shade-row">
+        <div class="shade" style="background:#EEF2FF"></div><div class="shade" style="background:#E0E7FF"></div>
+        <div class="shade" style="background:#C7D2FE"></div><div class="shade" style="background:#A5B4FC"></div>
+        <div class="shade" style="background:#818CF8"></div><div class="shade" style="background:#6366F1;outline:2px solid rgba(255,255,255,.3);outline-offset:1px"></div>
+        <div class="shade" style="background:#4F46E5"></div><div class="shade" style="background:#4338CA"></div>
+        <div class="shade" style="background:#3730A3"></div><div class="shade" style="background:#312E81"></div>
+        <div class="shade" style="background:#1E1B4B"></div>
+      </div>
+      <div class="mc-col">
+        <div><div class="label">Primary button</div><button class="mini-btn btn-a">Get in touch</button></div>
+        <div><div class="label">Build Story badge</div><span class="mini-badge badge-a">⚡ Build Story</span></div>
+        <div><div class="label">Glow card</div>
+          <div class="glow-card gcard-a">
+            <div style="font-weight:700;margin-bottom:3px;">Uptime · 127 days</div>
+            <div style="font-size:10px;opacity:.7;">Production · oracle-a1</div>
+          </div>
+        </div>
+        <div><div class="label">Metric chip</div><span class="chip chip-a">⚡ 14 days to ship</span></div>
+      </div>
+      <div class="ac-note">Familiar — gần Linear/Tailwind. Less distinctive.</div>
+    </div>
+
+    <!-- B: Violet — RECOMMENDED -->
+    <div class="accent-card rec">
+      <div class="ac-name">B — Violet</div>
+      <div class="ac-hex">#8B5CF6 · Balanced purple-violet</div>
+      <div class="shade-row">
+        <div class="shade" style="background:#F5F3FF"></div><div class="shade" style="background:#EDE9FE"></div>
+        <div class="shade" style="background:#DDD6FE"></div><div class="shade" style="background:#C4B5FD"></div>
+        <div class="shade" style="background:#A78BFA"></div><div class="shade" style="background:#8B5CF6;outline:2px solid rgba(255,255,255,.3);outline-offset:1px"></div>
+        <div class="shade" style="background:#7C3AED"></div><div class="shade" style="background:#6D28D9"></div>
+        <div class="shade" style="background:#5B21B6"></div><div class="shade" style="background:#4C1D95"></div>
+        <div class="shade" style="background:#2E1065"></div>
+      </div>
+      <div class="mc-col">
+        <div><div class="label">Primary button</div><button class="mini-btn btn-b">Get in touch</button></div>
+        <div><div class="label">Build Story badge</div><span class="mini-badge badge-b">⚡ Build Story</span></div>
+        <div><div class="label">Glow card</div>
+          <div class="glow-card gcard-b">
+            <div style="font-weight:700;margin-bottom:3px;">Uptime · 127 days</div>
+            <div style="font-size:10px;opacity:.7;">Production · oracle-a1</div>
+          </div>
+        </div>
+        <div><div class="label">Metric chip</div><span class="chip chip-b">⚡ 14 days to ship</span></div>
+      </div>
+      <div class="ac-note" style="color:#A78BFA;">Balanced — elegant (Neura) + impact (Velocity). Glow đẹp nhất.</div>
+    </div>
+
+    <!-- C: Electric Purple -->
+    <div class="accent-card">
+      <div class="ac-name">C — Electric Purple</div>
+      <div class="ac-hex">#A855F7 · Bright saturated</div>
+      <div class="shade-row">
+        <div class="shade" style="background:#FAF5FF"></div><div class="shade" style="background:#F3E8FF"></div>
+        <div class="shade" style="background:#E9D5FF"></div><div class="shade" style="background:#D8B4FE"></div>
+        <div class="shade" style="background:#C084FC"></div><div class="shade" style="background:#A855F7;outline:2px solid rgba(255,255,255,.3);outline-offset:1px"></div>
+        <div class="shade" style="background:#9333EA"></div><div class="shade" style="background:#7E22CE"></div>
+        <div class="shade" style="background:#6B21A8"></div><div class="shade" style="background:#581C87"></div>
+        <div class="shade" style="background:#3B0764"></div>
+      </div>
+      <div class="mc-col">
+        <div><div class="label">Primary button</div><button class="mini-btn btn-c">Get in touch</button></div>
+        <div><div class="label">Build Story badge</div><span class="mini-badge badge-c">⚡ Build Story</span></div>
+        <div><div class="label">Glow card</div>
+          <div class="glow-card gcard-c">
+            <div style="font-weight:700;margin-bottom:3px;">Uptime · 127 days</div>
+            <div style="font-size:10px;opacity:.7;">Production · oracle-a1</div>
+          </div>
+        </div>
+        <div><div class="label">Metric chip</div><span class="chip chip-c">⚡ 14 days to ship</span></div>
+      </div>
+      <div class="ac-note">Brightest impact — glow mạnh nhất. Có thể too vibrant.</div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════ 02 GLOW DEMO ═══════ -->
+<div class="section">
+  <p class="sec-title">02 — Glow Effect · Hero Metric Display</p>
+  <p class="desc">Cách mỗi accent hiển thị trên live metric cards — đây là element tạo visual impact mạnh nhất trên hero section.</p>
+  <div class="glow-grid">
+    <div class="gd gd-a">
+      <div class="gd-val" style="color:#818CF8;">127d</div>
+      <div class="gd-lbl">uptime · production</div>
+      <div class="gd-tag" style="background:rgba(99,102,241,.15);color:#A5B4FC;">⚡ 14 days to ship</div>
+      <div style="font-size:10px;color:#6366F1;margin-top:10px;font-weight:700;position:relative;">A — Indigo</div>
+    </div>
+    <div class="gd gd-b">
+      <div class="gd-val" style="color:#A78BFA;">127d</div>
+      <div class="gd-lbl">uptime · production</div>
+      <div class="gd-tag" style="background:rgba(139,92,246,.15);color:#C4B5FD;">⚡ 14 days to ship</div>
+      <div style="font-size:10px;color:#8B5CF6;margin-top:10px;font-weight:700;position:relative;">B — Violet ★ Recommended</div>
+    </div>
+    <div class="gd gd-c">
+      <div class="gd-val" style="color:#C084FC;">127d</div>
+      <div class="gd-lbl">uptime · production</div>
+      <div class="gd-tag" style="background:rgba(168,85,247,.15);color:#D8B4FE;">⚡ 14 days to ship</div>
+      <div style="font-size:10px;color:#A855F7;margin-top:10px;font-weight:700;position:relative;">C — Electric Purple</div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════ 03 NEUTRAL SYSTEM ═══════ -->
+<div class="section">
+  <p class="sec-title">03 — Base Neutral System</p>
+  <p class="desc">Background layers có slight purple tint (không phải pure zinc) để hài hòa với violet accent. Text hierarchy 4 levels.</p>
+  <div class="neutral-grid">
+    <div>
+      <div class="nt">Dark Mode — Backgrounds</div>
+      <div class="nr"><div class="ns" style="background:#09090B;"></div><div><div class="ni-name">bg-base</div><div class="ni-hex">#09090B</div><div class="ni-use">Page background</div></div></div>
+      <div class="nr"><div class="ns" style="background:#0F0F15;"></div><div><div class="ni-name">bg-subtle</div><div class="ni-hex">#0F0F15</div><div class="ni-use">Section alternates</div></div></div>
+      <div class="nr"><div class="ns" style="background:#111118;"></div><div><div class="ni-name">bg-surface</div><div class="ni-hex">#111118</div><div class="ni-use">Cards, panels</div></div></div>
+      <div class="nr"><div class="ns" style="background:#18181F;"></div><div><div class="ni-name">bg-elevated</div><div class="ni-hex">#18181F</div><div class="ni-use">Hover, inputs</div></div></div>
+      <div class="nr"><div class="ns" style="background:#1E1E28;"></div><div><div class="ni-name">bg-overlay</div><div class="ni-hex">#1E1E28</div><div class="ni-use">Modals, dropdowns</div></div></div>
+    </div>
+    <div>
+      <div class="nt">Dark Mode — Text & Border</div>
+      <div class="nr"><div class="ns" style="background:#FAFAFA;"></div><div><div class="ni-name">text-primary</div><div class="ni-hex">#FAFAFA</div><div class="ni-use">Headings, key content</div></div></div>
+      <div class="nr"><div class="ns" style="background:#A1A1AA;"></div><div><div class="ni-name">text-secondary</div><div class="ni-hex">#A1A1AA</div><div class="ni-use">Body, descriptions</div></div></div>
+      <div class="nr"><div class="ns" style="background:#71717A;"></div><div><div class="ni-name">text-muted</div><div class="ni-hex">#71717A</div><div class="ni-use">Timestamps, meta</div></div></div>
+      <div class="nr"><div class="ns" style="background:#27272F;border-color:rgba(255,255,255,.2);"></div><div><div class="ni-name">border-subtle</div><div class="ni-hex">rgba(255,255,255,.06)</div><div class="ni-use">Card borders</div></div></div>
+      <div class="nr"><div class="ns" style="background:#3F3F47;"></div><div><div class="ni-name">border-default</div><div class="ni-hex">rgba(255,255,255,.12)</div><div class="ni-use">Input borders</div></div></div>
+    </div>
+    <div>
+      <div class="nt">Light Mode — Backgrounds</div>
+      <div class="nr"><div class="ns" style="background:#FAFAF8;border-color:rgba(0,0,0,.1);"></div><div><div class="ni-name">bg-base</div><div class="ni-hex">#FAFAF8</div><div class="ni-use">Warm white page bg</div></div></div>
+      <div class="nr"><div class="ns" style="background:#FFFFFF;border-color:rgba(0,0,0,.1);"></div><div><div class="ni-name">bg-surface</div><div class="ni-hex">#FFFFFF</div><div class="ni-use">Cards, panels</div></div></div>
+      <div class="nr"><div class="ns" style="background:#F4F4F5;border-color:rgba(0,0,0,.1);"></div><div><div class="ni-name">bg-muted</div><div class="ni-hex">#F4F4F5</div><div class="ni-use">Code blocks, tag bg</div></div></div>
+      <div class="nr"><div class="ns" style="background:#E4E4E7;border-color:rgba(0,0,0,.1);"></div><div><div class="ni-name">border-default</div><div class="ni-hex">#E4E4E7</div><div class="ni-use">Dividers, card borders</div></div></div>
+    </div>
+    <div>
+      <div class="nt">Light Mode — Text</div>
+      <div class="nr"><div class="ns" style="background:#09090B;"></div><div><div class="ni-name">text-primary</div><div class="ni-hex">#09090B</div><div class="ni-use">Headings</div></div></div>
+      <div class="nr"><div class="ns" style="background:#52525B;"></div><div><div class="ni-name">text-secondary</div><div class="ni-hex">#52525B</div><div class="ni-use">Body text</div></div></div>
+      <div class="nr"><div class="ns" style="background:#71717A;"></div><div><div class="ni-name">text-muted</div><div class="ni-hex">#71717A</div><div class="ni-use">Meta, timestamps</div></div></div>
+      <div class="nr"><div class="ns" style="background:#A1A1AA;"></div><div><div class="ni-name">text-disabled</div><div class="ni-hex">#A1A1AA</div><div class="ni-use">Placeholders</div></div></div>
+    </div>
+  </div>
+  <div class="nt" style="margin-top:28px;">Semantic Colors (shared both modes)</div>
+  <div class="sem-row">
+    <div class="sem"><div class="sem-dot" style="background:#22C55E;box-shadow:0 0 10px rgba(34,197,94,.4);"></div><div><div class="ni-name">success / live</div><div class="ni-hex">#22C55E</div></div></div>
+    <div class="sem"><div class="sem-dot" style="background:#F59E0B;box-shadow:0 0 10px rgba(245,158,11,.3);"></div><div><div class="ni-name">warning</div><div class="ni-hex">#F59E0B</div></div></div>
+    <div class="sem"><div class="sem-dot" style="background:#EF4444;box-shadow:0 0 10px rgba(239,68,68,.3);"></div><div><div class="ni-name">error / offline</div><div class="ni-hex">#EF4444</div></div></div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════ 04 DARK MODE COMPONENTS ═══════ -->
+<div class="section">
+  <p class="sec-title">04 — Component Preview · Dark Mode</p>
+  <p class="desc">Nav + Hero + Project Card — cả 3 accent trên dark background.</p>
+  <div class="showcase-grid">
+
+    <!-- Dark A -->
+    <div class="sc sc-dark">
+      <div class="sc-label" style="color:#818CF8;">A — INDIGO</div>
+      <div class="nav"><span class="logo">chinh.dev</span><div class="nav-links"><span class="nl">Work</span><span class="nl">About</span></div><button class="cta" style="background:#6366F1;">Contact</button></div>
+      <div style="margin-bottom:12px;">
+        <div class="hero-ey" style="color:#6366F1;">Backend · Fullstack</div>
+        <div class="hero-h" style="color:#FAFAFA;">Evidence,<br>not claims.</div>
+        <div class="hero-sub">Live output. Documented process. Verifiable speed.</div>
+      </div>
+      <div class="mpair">
+        <div class="mchip" style="background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.2);color:#A5B4FC;">⚡ 14d ship</div>
+        <div class="mchip mchip-d"><span class="live">127d uptime</span></div>
+      </div>
+      <div class="pcard pcard-d" style="border-color:rgba(99,102,241,.18);box-shadow:0 0 18px rgba(99,102,241,.1);">
+        <div class="pc-head"><span class="pc-title" style="color:#FAFAFA;">Project Alpha</span><span class="live" style="font-size:10px;">Live</span></div>
+        <div class="pc-meta">
+          <span class="stk" style="background:rgba(99,102,241,.15);color:#A5B4FC;">React 18</span>
+          <span class="stk" style="background:rgba(255,255,255,.06);color:#A1A1AA;">Spring Boot</span>
+          <span class="mini-badge badge-a" style="font-size:10px;padding:2px 8px;">⚡ Build Story</span>
+        </div>
+        <div class="pc-desc" style="color:#71717A;">Full-stack with real-time metrics and documented architecture decisions.</div>
+      </div>
+    </div>
+
+    <!-- Dark B -->
+    <div class="sc sc-dark" style="border-color:rgba(139,92,246,.15);">
+      <div class="sc-label" style="color:#A78BFA;">B — VIOLET ★</div>
+      <div class="nav"><span class="logo">chinh.dev</span><div class="nav-links"><span class="nl">Work</span><span class="nl">About</span></div><button class="cta" style="background:#8B5CF6;">Contact</button></div>
+      <div style="margin-bottom:12px;">
+        <div class="hero-ey" style="color:#8B5CF6;">Backend · Fullstack</div>
+        <div class="hero-h" style="color:#FAFAFA;">Evidence,<br>not claims.</div>
+        <div class="hero-sub">Live output. Documented process. Verifiable speed.</div>
+      </div>
+      <div class="mpair">
+        <div class="mchip" style="background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.2);color:#C4B5FD;">⚡ 14d ship</div>
+        <div class="mchip mchip-d"><span class="live">127d uptime</span></div>
+      </div>
+      <div class="pcard pcard-d" style="border-color:rgba(139,92,246,.22);box-shadow:0 0 22px rgba(139,92,246,.14);">
+        <div class="pc-head"><span class="pc-title" style="color:#FAFAFA;">Project Alpha</span><span class="live" style="font-size:10px;">Live</span></div>
+        <div class="pc-meta">
+          <span class="stk" style="background:rgba(139,92,246,.15);color:#C4B5FD;">React 18</span>
+          <span class="stk" style="background:rgba(255,255,255,.06);color:#A1A1AA;">Spring Boot</span>
+          <span class="mini-badge badge-b" style="font-size:10px;padding:2px 8px;">⚡ Build Story</span>
+        </div>
+        <div class="pc-desc" style="color:#71717A;">Full-stack with real-time metrics and documented architecture decisions.</div>
+      </div>
+    </div>
+
+    <!-- Dark C -->
+    <div class="sc sc-dark">
+      <div class="sc-label" style="color:#C084FC;">C — ELECTRIC PURPLE</div>
+      <div class="nav"><span class="logo">chinh.dev</span><div class="nav-links"><span class="nl">Work</span><span class="nl">About</span></div><button class="cta" style="background:#A855F7;">Contact</button></div>
+      <div style="margin-bottom:12px;">
+        <div class="hero-ey" style="color:#A855F7;">Backend · Fullstack</div>
+        <div class="hero-h" style="color:#FAFAFA;">Evidence,<br>not claims.</div>
+        <div class="hero-sub">Live output. Documented process. Verifiable speed.</div>
+      </div>
+      <div class="mpair">
+        <div class="mchip" style="background:rgba(168,85,247,.1);border-color:rgba(168,85,247,.2);color:#D8B4FE;">⚡ 14d ship</div>
+        <div class="mchip mchip-d"><span class="live">127d uptime</span></div>
+      </div>
+      <div class="pcard pcard-d" style="border-color:rgba(168,85,247,.22);box-shadow:0 0 26px rgba(168,85,247,.18);">
+        <div class="pc-head"><span class="pc-title" style="color:#FAFAFA;">Project Alpha</span><span class="live" style="font-size:10px;">Live</span></div>
+        <div class="pc-meta">
+          <span class="stk" style="background:rgba(168,85,247,.15);color:#D8B4FE;">React 18</span>
+          <span class="stk" style="background:rgba(255,255,255,.06);color:#A1A1AA;">Spring Boot</span>
+          <span class="mini-badge badge-c" style="font-size:10px;padding:2px 8px;">⚡ Build Story</span>
+        </div>
+        <div class="pc-desc" style="color:#71717A;">Full-stack with real-time metrics and documented architecture decisions.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════ 05 LIGHT MODE COMPONENTS ═══════ -->
+<div class="section">
+  <p class="sec-title">05 — Component Preview · Light Mode</p>
+  <p class="desc">Same components, light theme. Dark-first nhưng light mode available. Glow nhẹ hơn, accent tối hơn 1 shade để đủ contrast.</p>
+  <div class="showcase-grid">
+
+    <!-- Light A -->
+    <div class="sc sc-light">
+      <div class="sc-label" style="color:#4F46E5;border-bottom-color:rgba(0,0,0,.06);">A — INDIGO</div>
+      <div class="nav nav-l"><span class="logo" style="color:#09090B;">chinh.dev</span><div class="nav-links"><span class="nl">Work</span><span class="nl">About</span></div><button class="cta" style="background:#6366F1;">Contact</button></div>
+      <div style="margin-bottom:12px;">
+        <div class="hero-ey" style="color:#4F46E5;">Backend · Fullstack</div>
+        <div class="hero-h" style="color:#09090B;">Evidence,<br>not claims.</div>
+        <div class="hero-sub hero-sub-l">Live output. Documented process. Verifiable speed.</div>
+      </div>
+      <div class="mpair">
+        <div class="mchip" style="background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.2);color:#4F46E5;">⚡ 14d ship</div>
+        <div class="mchip mchip-l"><span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#22C55E;display:inline-block;"></span>127d uptime</span></div>
+      </div>
+      <div class="pcard pcard-l" style="border-color:rgba(99,102,241,.2);box-shadow:0 4px 16px rgba(99,102,241,.1);">
+        <div class="pc-head"><span class="pc-title" style="color:#09090B;">Project Alpha</span><span style="font-size:10px;font-weight:600;color:#22C55E;display:inline-flex;align-items:center;gap:3px;"><span style="width:5px;height:5px;border-radius:50%;background:#22C55E;display:inline-block;"></span>Live</span></div>
+        <div class="pc-meta">
+          <span class="stk" style="background:rgba(99,102,241,.1);color:#4F46E5;">React 18</span>
+          <span class="stk" style="background:rgba(0,0,0,.05);color:#52525B;">Spring Boot</span>
+          <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;background:rgba(99,102,241,.1);color:#4F46E5;border:1px solid rgba(99,102,241,.2);">⚡ Build Story</span>
+        </div>
+        <div class="pc-desc" style="color:#52525B;">Full-stack with real-time metrics and documented architecture decisions.</div>
+      </div>
+    </div>
+
+    <!-- Light B -->
+    <div class="sc sc-light" style="border-color:rgba(139,92,246,.15);">
+      <div class="sc-label" style="color:#7C3AED;border-bottom-color:rgba(0,0,0,.06);">B — VIOLET ★</div>
+      <div class="nav nav-l"><span class="logo" style="color:#09090B;">chinh.dev</span><div class="nav-links"><span class="nl">Work</span><span class="nl">About</span></div><button class="cta" style="background:#8B5CF6;">Contact</button></div>
+      <div style="margin-bottom:12px;">
+        <div class="hero-ey" style="color:#7C3AED;">Backend · Fullstack</div>
+        <div class="hero-h" style="color:#09090B;">Evidence,<br>not claims.</div>
+        <div class="hero-sub hero-sub-l">Live output. Documented process. Verifiable speed.</div>
+      </div>
+      <div class="mpair">
+        <div class="mchip" style="background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.2);color:#7C3AED;">⚡ 14d ship</div>
+        <div class="mchip mchip-l"><span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#22C55E;display:inline-block;"></span>127d uptime</span></div>
+      </div>
+      <div class="pcard pcard-l" style="border-color:rgba(139,92,246,.2);box-shadow:0 4px 20px rgba(139,92,246,.1);">
+        <div class="pc-head"><span class="pc-title" style="color:#09090B;">Project Alpha</span><span style="font-size:10px;font-weight:600;color:#22C55E;display:inline-flex;align-items:center;gap:3px;"><span style="width:5px;height:5px;border-radius:50%;background:#22C55E;display:inline-block;"></span>Live</span></div>
+        <div class="pc-meta">
+          <span class="stk" style="background:rgba(139,92,246,.1);color:#7C3AED;">React 18</span>
+          <span class="stk" style="background:rgba(0,0,0,.05);color:#52525B;">Spring Boot</span>
+          <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;background:rgba(139,92,246,.1);color:#7C3AED;border:1px solid rgba(139,92,246,.2);">⚡ Build Story</span>
+        </div>
+        <div class="pc-desc" style="color:#52525B;">Full-stack with real-time metrics and documented architecture decisions.</div>
+      </div>
+    </div>
+
+    <!-- Light C -->
+    <div class="sc sc-light">
+      <div class="sc-label" style="color:#9333EA;border-bottom-color:rgba(0,0,0,.06);">C — ELECTRIC PURPLE</div>
+      <div class="nav nav-l"><span class="logo" style="color:#09090B;">chinh.dev</span><div class="nav-links"><span class="nl">Work</span><span class="nl">About</span></div><button class="cta" style="background:#A855F7;">Contact</button></div>
+      <div style="margin-bottom:12px;">
+        <div class="hero-ey" style="color:#9333EA;">Backend · Fullstack</div>
+        <div class="hero-h" style="color:#09090B;">Evidence,<br>not claims.</div>
+        <div class="hero-sub hero-sub-l">Live output. Documented process. Verifiable speed.</div>
+      </div>
+      <div class="mpair">
+        <div class="mchip" style="background:rgba(168,85,247,.08);border-color:rgba(168,85,247,.2);color:#9333EA;">⚡ 14d ship</div>
+        <div class="mchip mchip-l"><span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#22C55E;display:inline-block;"></span>127d uptime</span></div>
+      </div>
+      <div class="pcard pcard-l" style="border-color:rgba(168,85,247,.2);box-shadow:0 4px 22px rgba(168,85,247,.12);">
+        <div class="pc-head"><span class="pc-title" style="color:#09090B;">Project Alpha</span><span style="font-size:10px;font-weight:600;color:#22C55E;display:inline-flex;align-items:center;gap:3px;"><span style="width:5px;height:5px;border-radius:50%;background:#22C55E;display:inline-block;"></span>Live</span></div>
+        <div class="pc-meta">
+          <span class="stk" style="background:rgba(168,85,247,.1);color:#9333EA;">React 18</span>
+          <span class="stk" style="background:rgba(0,0,0,.05);color:#52525B;">Spring Boot</span>
+          <span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;background:rgba(168,85,247,.1);color:#9333EA;border:1px solid rgba(168,85,247,.2);">⚡ Build Story</span>
+        </div>
+        <div class="pc-desc" style="color:#52525B;">Full-stack with real-time metrics and documented architecture decisions.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="text-align:center;padding:32px 0;color:#3F3F47;font-size:11px;">
+  portfolio-v2 Color System Preview · 2026 · Plus Jakarta Sans · Dark-first
+</div>
+
+</body>
+</html>

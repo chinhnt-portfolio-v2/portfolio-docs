@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>portfolio-v2 — Design Directions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --p50: #FAF5FF; --p100: #F3E8FF; --p200: #E9D5FF; --p300: #D8B4FE;
+      --p400: #C084FC; --p500: #A855F7; --p600: #9333EA; --p700: #7E22CE;
+      --bg0: #09090B; --bg1: #0F0F15; --bg2: #111118; --bg3: #18181F; --bg4: #1E1E28;
+      --t0: #FAFAFA; --t1: #A1A1AA; --t2: #71717A; --t3: #3F3F47;
+      --green: #22C55E; --amber: #F59E0B;
+      --glow: 0 0 28px rgba(168,85,247,.25);
+      --glowS: 0 0 14px rgba(168,85,247,.2);
+      --glowL: 0 0 48px rgba(168,85,247,.3);
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: #060608; color: var(--t0);
+      margin: 0; padding: 0;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      padding: 40px 48px 32px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(6,6,8,.95); backdrop-filter: blur(12px);
+    }
+    .page-header h1 { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 2px; }
+    .page-header p { font-size: 12px; color: var(--t2); }
+    .dir-nav { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .dir-pill {
+      padding: 5px 14px; border-radius: 999px; font-size: 11px; font-weight: 600;
+      border: 1px solid rgba(255,255,255,.1); color: var(--t2); cursor: pointer;
+      text-decoration: none; transition: all .2s;
+    }
+    .dir-pill:hover { border-color: var(--p500); color: var(--p400); background: rgba(168,85,247,.08); }
+
+    /* ── DIRECTION WRAPPER ── */
+    .direction {
+      padding: 56px 48px;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .dir-header { margin-bottom: 28px; }
+    .dir-num { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--p500); margin-bottom: 6px; }
+    .dir-title { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 6px; }
+    .dir-desc { font-size: 13px; color: var(--t2); max-width: 560px; line-height: 1.6; }
+
+    /* ── MOCKUP FRAME ── */
+    .mockup {
+      border-radius: 14px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 24px 80px rgba(0,0,0,.6);
+    }
+    .mockup-browser {
+      background: var(--bg2); padding: 10px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #FF5F57; } .dot-y { background: #FFBD2E; } .dot-g { background: #28CA41; }
+    .url-bar {
+      flex: 1; background: var(--bg3); border-radius: 6px;
+      padding: 4px 12px; font-size: 11px; color: var(--t2);
+      font-family: monospace; margin: 0 8px;
+    }
+
+    /* ── SHARED COMPONENTS ── */
+    .live { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--green); }
+    .live::before { content:''; display:block; width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .stk { display:inline-flex; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700; font-family:monospace; background:rgba(255,255,255,.06); color:var(--t1); }
+    .stk-p { background:rgba(168,85,247,.15); color:var(--p300); }
+    .tag-bs { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:999px; font-size:10px; font-weight:700; background:rgba(168,85,247,.15); color:var(--p300); border:1px solid rgba(168,85,247,.25); }
+
+    /* metric chip */
+    .mc { display:inline-flex; align-items:center; gap:5px; padding:5px 10px; border-radius:7px; font-size:11px; font-weight:700; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.04); color:var(--t1); }
+    .mc-p { border-color:rgba(168,85,247,.25); background:rgba(168,85,247,.1); color:var(--p300); }
+
+    /* ─────────────────────────────── */
+    /* DIRECTION 1: DATA FIRST          */
+    /* ─────────────────────────────── */
+    .d1-wrap { background: var(--bg0); min-height: 520px; }
+    .d1-nav { display:flex; align-items:center; justify-content:space-between; padding:16px 40px; border-bottom:1px solid rgba(255,255,255,.05); }
+    .d1-logo { font-size:14px; font-weight:800; letter-spacing:-.03em; }
+    .d1-links { display:flex; gap:24px; }
+    .d1-link { font-size:12px; font-weight:500; color:var(--t2); }
+    .d1-cta { font-size:12px; font-weight:700; padding:7px 16px; border-radius:8px; background:var(--p500); color:#fff; border:none; cursor:default; }
+
+    .d1-hero { padding:48px 40px; display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start; }
+    .d1-left-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--p500); margin-bottom:10px; }
+    .d1-h { font-size:42px; font-weight:800; letter-spacing:-.04em; line-height:1.08; margin-bottom:12px; }
+    .d1-sub { font-size:13px; color:var(--t2); line-height:1.7; margin-bottom:24px; max-width:380px; }
+    .d1-actions { display:flex; gap:10px; align-items:center; }
+    .d1-btn-p { padding:10px 20px; border-radius:9px; background:var(--p500); color:#fff; font-size:13px; font-weight:700; border:none; cursor:default; box-shadow:var(--glow); }
+    .d1-btn-s { padding:10px 20px; border-radius:9px; background:rgba(255,255,255,.06); color:var(--t0); font-size:13px; font-weight:600; border:1px solid rgba(255,255,255,.1); cursor:default; }
+
+    .d1-dashboard { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .d1-metric {
+      background:var(--bg2); border-radius:10px; padding:16px 18px;
+      border:1px solid rgba(255,255,255,.07);
+    }
+    .d1-metric.featured { border-color:rgba(168,85,247,.25); box-shadow:var(--glow); background:rgba(168,85,247,.06); }
+    .d1-m-label { font-size:10px; font-weight:600; color:var(--t2); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+    .d1-m-val { font-size:28px; font-weight:800; letter-spacing:-.04em; }
+    .d1-m-sub { font-size:11px; color:var(--t2); margin-top:2px; }
+    .d1-m-green { color:var(--green); }
+    .d1-m-purple { color:var(--p400); }
+
+    /* ─────────────────────────────── */
+    /* DIRECTION 2: TYPOGRAPHY LEAD    */
+    /* ─────────────────────────────── */
+    .d2-wrap { background: var(--bg0); min-height:520px; }
+    .d2-nav { display:flex; align-items:center; justify-content:space-between; padding:20px 48px; }
+    .d2-logo { font-size:13px; font-weight:800; letter-spacing:-.03em; }
+    .d2-links { display:flex; gap:28px; }
+    .d2-link { font-size:12px; color:var(--t2); font-weight:500; }
+    .d2-cta-link { font-size:12px; font-weight:700; color:var(--p400); }
+
+    .d2-hero { padding:60px 48px 48px; }
+    .d2-eyebrow { font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--p500); margin-bottom:16px; display:flex; align-items:center; gap:10px; }
+    .d2-eyebrow::after { content:''; flex:1; height:1px; background:rgba(168,85,247,.2); max-width:80px; }
+    .d2-display { font-size:72px; font-weight:800; letter-spacing:-.05em; line-height:.95; margin-bottom:24px; max-width:700px; }
+    .d2-display span { color:var(--p400); }
+    .d2-sub { font-size:15px; color:var(--t2); line-height:1.7; max-width:480px; margin-bottom:32px; }
+    .d2-proof-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .d2-stat { display:flex; align-items:baseline; gap:4px; }
+    .d2-stat-n { font-size:20px; font-weight:800; letter-spacing:-.03em; color:var(--p400); }
+    .d2-stat-l { font-size:11px; color:var(--t2); font-weight:500; }
+    .d2-divider { width:1px; height:20px; background:rgba(255,255,255,.1); }
+
+    /* ─────────────────────────────── */
+    /* DIRECTION 3: GALLERY ABOVE FOLD */
+    /* ─────────────────────────────── */
+    .d3-wrap { background:var(--bg0); min-height:560px; }
+    .d3-nav { display:flex; align-items:center; justify-content:space-between; padding:14px 36px; border-bottom:1px solid rgba(255,255,255,.05); }
+    .d3-logo { font-size:13px; font-weight:800; letter-spacing:-.03em; }
+    .d3-links { display:flex; gap:20px; align-items:center; }
+    .d3-link { font-size:11px; color:var(--t2); font-weight:500; }
+    .d3-cta { font-size:11px; font-weight:700; padding:6px 14px; border-radius:7px; background:var(--p500); color:#fff; border:none; cursor:default; }
+
+    .d3-topbar { padding:20px 36px 16px; display:flex; align-items:center; justify-content:space-between; }
+    .d3-headline { font-size:18px; font-weight:800; letter-spacing:-.03em; }
+    .d3-filters { display:flex; gap:6px; }
+    .d3-filter { padding:5px 12px; border-radius:999px; font-size:11px; font-weight:600; border:1px solid rgba(255,255,255,.1); color:var(--t2); cursor:default; }
+    .d3-filter.active { background:rgba(168,85,247,.15); border-color:rgba(168,85,247,.35); color:var(--p300); }
+
+    .d3-grid { padding:0 36px 36px; display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .d3-card {
+      background:var(--bg2); border-radius:11px; padding:18px;
+      border:1px solid rgba(255,255,255,.07); cursor:default;
+    }
+    .d3-card.featured { border-color:rgba(168,85,247,.22); box-shadow:var(--glowS); }
+    .d3-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+    .d3-card-title { font-size:13px; font-weight:700; letter-spacing:-.01em; }
+    .d3-card-meta { display:flex; gap:5px; margin-bottom:8px; flex-wrap:wrap; }
+    .d3-card-desc { font-size:11px; color:var(--t2); line-height:1.5; margin-bottom:10px; }
+    .d3-card-footer { display:flex; justify-content:space-between; align-items:center; }
+    .d3-url { font-size:10px; color:var(--p400); font-weight:600; }
+
+    /* ─────────────────────────────── */
+    /* DIRECTION 4: GLOW DARK          */
+    /* ─────────────────────────────── */
+    .d4-wrap { background:#050508; min-height:520px; position:relative; overflow:hidden; }
+    .d4-bg-glow {
+      position:absolute; top:-120px; right:-80px;
+      width:600px; height:600px; border-radius:50%;
+      background:radial-gradient(circle, rgba(168,85,247,.12) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    .d4-bg-glow2 {
+      position:absolute; bottom:-160px; left:-100px;
+      width:500px; height:500px; border-radius:50%;
+      background:radial-gradient(circle, rgba(168,85,247,.07) 0%, transparent 70%);
+      pointer-events:none;
+    }
+    .d4-nav {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:18px 44px; position:relative; z-index:2;
+      border-bottom:1px solid rgba(168,85,247,.1);
+    }
+    .d4-logo { font-size:14px; font-weight:800; letter-spacing:-.03em; }
+    .d4-logo span { color:var(--p400); }
+    .d4-links { display:flex; gap:24px; }
+    .d4-link { font-size:12px; color:var(--t2); font-weight:500; }
+    .d4-cta { font-size:12px; font-weight:700; padding:7px 16px; border-radius:8px; background:rgba(168,85,247,.15); color:var(--p300); border:1px solid rgba(168,85,247,.3); cursor:default; }
+
+    .d4-hero { padding:64px 44px; position:relative; z-index:2; display:grid; grid-template-columns:1.2fr 1fr; gap:48px; align-items:center; }
+    .d4-eyebrow { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:999px; font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; background:rgba(168,85,247,.12); border:1px solid rgba(168,85,247,.25); color:var(--p300); margin-bottom:16px; }
+    .d4-h { font-size:44px; font-weight:800; letter-spacing:-.045em; line-height:1.06; margin-bottom:14px; }
+    .d4-h span { background:linear-gradient(135deg,var(--p400),var(--p300)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .d4-sub { font-size:13px; color:var(--t2); line-height:1.7; margin-bottom:28px; }
+    .d4-actions { display:flex; gap:10px; }
+    .d4-btn-p { padding:10px 20px; border-radius:9px; background:var(--p500); color:#fff; font-size:13px; font-weight:700; border:none; cursor:default; box-shadow:0 0 32px rgba(168,85,247,.35); }
+    .d4-btn-s { padding:10px 20px; border-radius:9px; background:rgba(255,255,255,.04); color:var(--t0); font-size:13px; font-weight:600; border:1px solid rgba(255,255,255,.08); cursor:default; }
+
+    .d4-card-stack { display:flex; flex-direction:column; gap:10px; }
+    .d4-mini {
+      background:rgba(168,85,247,.06); border-radius:10px; padding:14px 16px;
+      border:1px solid rgba(168,85,247,.15);
+      box-shadow: 0 0 18px rgba(168,85,247,.1);
+    }
+    .d4-mini-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .d4-mini-title { font-size:12px; font-weight:700; }
+    .d4-mini-meta { display:flex; gap:5px; }
+
+    /* ─────────────────────────────── */
+    /* DIRECTION 5: EDITORIAL          */
+    /* ─────────────────────────────── */
+    .d5-wrap { background:var(--bg0); min-height:540px; }
+    .d5-nav { display:flex; align-items:center; justify-content:space-between; padding:18px 44px; }
+    .d5-logo { font-size:13px; font-weight:800; letter-spacing:-.03em; }
+    .d5-links { display:flex; gap:24px; }
+    .d5-link { font-size:12px; color:var(--t2); font-weight:500; }
+    .d5-cta { font-size:12px; font-weight:700; padding:7px 16px; border-radius:8px; border:1px solid rgba(255,255,255,.15); color:var(--t0); cursor:default; }
+
+    .d5-hero { padding:32px 44px; display:grid; grid-template-columns:1fr 1.4fr; gap:56px; align-items:start; }
+    .d5-left { padding-top:16px; }
+    .d5-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--t2); margin-bottom:40px; }
+    .d5-big-h { font-size:52px; font-weight:800; letter-spacing:-.05em; line-height:1.0; margin-bottom:16px; }
+    .d5-big-h em { font-style:italic; color:var(--p400); }
+    .d5-divider { width:40px; height:2px; background:var(--p500); margin-bottom:16px; box-shadow:0 0 8px var(--p500); }
+    .d5-sub { font-size:13px; color:var(--t2); line-height:1.7; margin-bottom:28px; max-width:320px; }
+    .d5-contact { display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--p400); }
+    .d5-contact::after { content:'→'; }
+
+    .d5-right {}
+    .d5-featured {
+      background:var(--bg2); border-radius:12px; padding:20px;
+      border:1px solid rgba(255,255,255,.07); margin-bottom:12px;
+      box-shadow:var(--glow);
+      border-color:rgba(168,85,247,.2);
+    }
+    .d5-feat-img { height:120px; background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(168,85,247,.05)); border-radius:8px; margin-bottom:14px; display:flex; align-items:center; justify-content:center; }
+    .d5-feat-img-inner { width:48px; height:48px; border-radius:50%; background:rgba(168,85,247,.2); border:1px solid rgba(168,85,247,.4); display:flex; align-items:center; justify-content:center; }
+    .d5-feat-title { font-size:14px; font-weight:800; letter-spacing:-.02em; margin-bottom:6px; }
+    .d5-feat-meta { display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; align-items:center; }
+    .d5-feat-desc { font-size:11px; color:var(--t2); line-height:1.5; }
+
+    .d5-list { display:flex; flex-direction:column; gap:8px; }
+    .d5-list-item { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--bg2); border-radius:8px; border:1px solid rgba(255,255,255,.06); }
+    .d5-list-title { font-size:12px; font-weight:700; }
+    .d5-list-meta { display:flex; gap:6px; }
+
+    /* ─────────────────────────────── */
+    /* DIRECTION 6: BENTO GRID         */
+    /* ─────────────────────────────── */
+    .d6-wrap { background:var(--bg0); min-height:560px; }
+    .d6-nav { display:flex; align-items:center; justify-content:space-between; padding:14px 36px; border-bottom:1px solid rgba(255,255,255,.05); }
+    .d6-logo { font-size:13px; font-weight:800; letter-spacing:-.03em; }
+    .d6-links { display:flex; gap:22px; align-items:center; }
+    .d6-link { font-size:11px; color:var(--t2); font-weight:500; }
+    .d6-cta { font-size:11px; font-weight:700; padding:6px 14px; border-radius:7px; background:var(--p500); color:#fff; border:none; cursor:default; box-shadow:var(--glowS); }
+
+    .d6-bento { padding:24px 36px; display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:auto; gap:12px; }
+
+    .d6-cell { border-radius:12px; border:1px solid rgba(255,255,255,.07); background:var(--bg2); padding:20px; overflow:hidden; }
+    .d6-cell.span2 { grid-column:span 2; }
+    .d6-cell.span3 { grid-column:span 3; }
+    .d6-cell.hero-cell { background:linear-gradient(135deg,rgba(168,85,247,.12) 0%,var(--bg2) 60%); border-color:rgba(168,85,247,.2); box-shadow:var(--glow); }
+    .d6-cell.metric-cell { background:var(--bg3); }
+    .d6-cell.accent-cell { background:rgba(168,85,247,.08); border-color:rgba(168,85,247,.2); }
+
+    .d6-hero-tag { font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--p400); margin-bottom:8px; }
+    .d6-hero-h { font-size:28px; font-weight:800; letter-spacing:-.04em; line-height:1.1; margin-bottom:8px; }
+    .d6-hero-sub { font-size:11px; color:var(--t2); line-height:1.6; margin-bottom:14px; }
+    .d6-hero-btn { display:inline-block; padding:8px 16px; border-radius:8px; background:var(--p500); color:#fff; font-size:11px; font-weight:700; box-shadow:var(--glowS); cursor:default; }
+
+    .d6-metric-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--t2); margin-bottom:4px; }
+    .d6-metric-val { font-size:30px; font-weight:800; letter-spacing:-.04em; }
+    .d6-metric-sub { font-size:10px; color:var(--t2); margin-top:2px; }
+
+    .d6-card-title { font-size:12px; font-weight:700; margin-bottom:6px; }
+    .d6-card-meta { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:6px; }
+    .d6-card-desc { font-size:10px; color:var(--t2); line-height:1.5; }
+
+    .d6-bio-label { font-size:10px; font-weight:700; color:var(--t2); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+    .d6-bio-text { font-size:11px; color:var(--t1); line-height:1.6; }
+
+    .d6-stack-label { font-size:10px; font-weight:700; color:var(--p400); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+    .d6-stk-grid { display:flex; flex-wrap:wrap; gap:4px; }
+
+    /* evaluation guide */
+    .eval-box { margin-top:24px; padding:16px 20px; background:rgba(255,255,255,.03); border-radius:10px; border:1px solid rgba(255,255,255,.06); }
+    .eval-title { font-size:11px; font-weight:700; color:var(--t2); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+    .eval-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .eval-item { font-size:11px; color:var(--t2); display:flex; gap:6px; align-items:flex-start; }
+    .eval-dot { width:5px; height:5px; border-radius:50%; background:var(--p500); flex-shrink:0; margin-top:4px; }
+
+    /* Footer prompt */
+    .footer-prompt { padding:48px; text-align:center; border-top:1px solid rgba(255,255,255,.04); }
+    .footer-prompt h3 { font-size:18px; font-weight:800; letter-spacing:-.02em; margin-bottom:8px; }
+    .footer-prompt p { font-size:13px; color:var(--t2); max-width:480px; margin:0 auto; line-height:1.6; }
+  </style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <h1>portfolio-v2 — Design Directions</h1>
+  <p>6 layout approaches · Electric Purple · Geist · Spacious · Dark-first</p>
+  <div class="dir-nav">
+    <a href="#d1" class="dir-pill">1 Data First</a>
+    <a href="#d2" class="dir-pill">2 Typography Lead</a>
+    <a href="#d3" class="dir-pill">3 Gallery Above Fold</a>
+    <a href="#d4" class="dir-pill">4 Glow Dark</a>
+    <a href="#d5" class="dir-pill">5 Editorial</a>
+    <a href="#d6" class="dir-pill">6 Bento Grid</a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- DIRECTION 1: DATA FIRST                    -->
+<!-- ══════════════════════════════════════════ -->
+<div class="direction" id="d1">
+  <div class="dir-header">
+    <div class="dir-num">Direction 01</div>
+    <div class="dir-title">Data First</div>
+    <div class="dir-desc">Hero là một live metrics dashboard. Không có headline marketing — số liệu tự nói. Recruiter thấy proof ngay lập tức. Cảm giác: Vercel dashboard meets developer portfolio.</div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-browser">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <div class="url-bar">chinh.dev</div>
+    </div>
+    <div class="d1-wrap">
+      <div class="d1-nav">
+        <span class="d1-logo">chinh.dev</span>
+        <div class="d1-links"><span class="d1-link">Work</span><span class="d1-link">About</span><span class="d1-link">Contact</span></div>
+        <button class="d1-cta">Get in touch</button>
+      </div>
+      <div class="d1-hero">
+        <div>
+          <div class="d1-left-label">Backend · Fullstack Engineer</div>
+          <div class="d1-h">Evidence,<br>not claims.</div>
+          <div class="d1-sub">Live production output. Documented process. Verifiable speed. No adjectives without proof.</div>
+          <div class="d1-actions">
+            <button class="d1-btn-p">View work</button>
+            <button class="d1-btn-s">Get in touch</button>
+          </div>
+        </div>
+        <div class="d1-dashboard">
+          <div class="d1-metric featured">
+            <div class="d1-m-label">Uptime · flagship project</div>
+            <div class="d1-m-val d1-m-purple">127 <span style="font-size:16px;color:var(--t2);">days</span></div>
+            <div class="d1-m-sub" style="display:flex;align-items:center;gap:5px;"><span class="live">production</span></div>
+          </div>
+          <div class="d1-metric featured">
+            <div class="d1-m-label">Shipped in</div>
+            <div class="d1-m-val d1-m-purple">14 <span style="font-size:16px;color:var(--t2);">days</span></div>
+            <div class="d1-m-sub">idea → production</div>
+          </div>
+          <div class="d1-metric">
+            <div class="d1-m-label">Active projects</div>
+            <div class="d1-m-val d1-m-green">4 <span style="font-size:16px;color:var(--t2);">live</span></div>
+            <div class="d1-m-sub">all with live URLs</div>
+          </div>
+          <div class="d1-metric">
+            <div class="d1-m-label">Build stories</div>
+            <div class="d1-m-val" style="color:var(--t0);">3 <span style="font-size:16px;color:var(--t2);">docs</span></div>
+            <div class="d1-m-sub">decision logs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="eval-box">
+    <div class="eval-title">Evaluate this direction</div>
+    <div class="eval-grid">
+      <div class="eval-item"><div class="eval-dot"></div>Numbers above fold — recruiter sees proof before any text</div>
+      <div class="eval-item"><div class="eval-dot"></div>Headline still anchors left — dual-column balances data and identity</div>
+      <div class="eval-item"><div class="eval-dot"></div>High information density on first view — confident recruiter experience</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- DIRECTION 2: TYPOGRAPHY LEAD               -->
+<!-- ══════════════════════════════════════════ -->
+<div class="direction" id="d2">
+  <div class="dir-header">
+    <div class="dir-num">Direction 02</div>
+    <div class="dir-title">Typography Lead</div>
+    <div class="dir-desc">Giant display type dominates the fold. Minimal elements — type IS the design. Proof cues come through bold language, not visual density. Cảm giác: Linear homepage meets editorial magazine.</div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-browser">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <div class="url-bar">chinh.dev</div>
+    </div>
+    <div class="d2-wrap">
+      <div class="d2-nav">
+        <span class="d2-logo">chinh.dev</span>
+        <div class="d2-links"><span class="d2-link">Work</span><span class="d2-link">About</span></div>
+        <span class="d2-cta-link">Get in touch →</span>
+      </div>
+      <div class="d2-hero">
+        <div class="d2-eyebrow">Backend · Fullstack</div>
+        <div class="d2-display">Building systems<br>that <span>stay live.</span></div>
+        <div class="d2-sub">Not claims about capability — live production output, documented process, verifiable speed. Four projects. All running.</div>
+        <div class="d2-proof-row">
+          <div class="d2-stat"><span class="d2-stat-n">127</span><span class="d2-stat-l">days uptime</span></div>
+          <div class="d2-divider"></div>
+          <div class="d2-stat"><span class="d2-stat-n">14</span><span class="d2-stat-l">days to ship</span></div>
+          <div class="d2-divider"></div>
+          <div class="d2-stat"><span class="d2-stat-n">4</span><span class="d2-stat-l">live projects</span></div>
+          <div class="d2-divider"></div>
+          <div class="d2-stat"><span class="d2-stat-n">3</span><span class="d2-stat-l">build stories</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="eval-box">
+    <div class="eval-title">Evaluate this direction</div>
+    <div class="eval-grid">
+      <div class="eval-item"><div class="eval-dot"></div>Maximum visual impact — 72px type is hard to ignore</div>
+      <div class="eval-item"><div class="eval-dot"></div>Proof numbers in a scannable row — fast to process</div>
+      <div class="eval-item"><div class="eval-dot"></div>Minimal decoration — clean, but less visual richness above fold</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- DIRECTION 3: GALLERY ABOVE FOLD            -->
+<!-- ══════════════════════════════════════════ -->
+<div class="direction" id="d3">
+  <div class="dir-header">
+    <div class="dir-num">Direction 03</div>
+    <div class="dir-title">Gallery Above Fold</div>
+    <div class="dir-desc">Projects xuất hiện ngay — không cần scroll. Recruiter thấy work trước, identity sau. Filter chips ngay trên gallery. Cảm giác: product directory, proof-first, zero friction to explore.</div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-browser">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <div class="url-bar">chinh.dev</div>
+    </div>
+    <div class="d3-wrap">
+      <div class="d3-nav">
+        <span class="d3-logo">chinh.dev</span>
+        <div class="d3-links">
+          <span class="d3-link">About</span><span class="d3-link">Contact</span>
+          <button class="d3-cta">Hire me</button>
+        </div>
+      </div>
+      <div class="d3-topbar">
+        <div>
+          <div class="d3-headline">Production work</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:2px;">4 projects · all live · all with build stories</div>
+        </div>
+        <div class="d3-filters">
+          <div class="d3-filter active">Featured</div>
+          <div class="d3-filter">Backend</div>
+          <div class="d3-filter">Fullstack</div>
+          <div class="d3-filter">All</div>
+        </div>
+      </div>
+      <div class="d3-grid">
+        <div class="d3-card featured">
+          <div class="d3-card-top">
+            <div class="d3-card-title">portfolio-v2</div>
+            <span class="live" style="font-size:10px;">Live</span>
+          </div>
+          <div class="d3-card-meta">
+            <span class="stk stk-p">React 18</span><span class="stk">Spring Boot</span><span class="tag-bs">⚡ Build Story</span>
+          </div>
+          <div class="d3-card-desc">Evidence-based portfolio. This site. Built with AI agents, full PRD, architecture docs.</div>
+          <div class="d3-card-footer">
+            <div style="display:flex;gap:6px;">
+              <span class="mc mc-p">⚡ 14d</span>
+              <span class="mc">🟢 127d uptime</span>
+            </div>
+            <span class="d3-url">↗ chinh.dev</span>
+          </div>
+        </div>
+        <div class="d3-card">
+          <div class="d3-card-top">
+            <div class="d3-card-title">Project Alpha</div>
+            <span class="live" style="font-size:10px;">Live</span>
+          </div>
+          <div class="d3-card-meta">
+            <span class="stk stk-p">Kotlin</span><span class="stk">PostgreSQL</span><span class="tag-bs">⚡ Build Story</span>
+          </div>
+          <div class="d3-card-desc">Backend API with documented architecture decisions and migration from MongoDB.</div>
+          <div class="d3-card-footer">
+            <span class="mc mc-p">⚡ 21d</span>
+            <span class="d3-url">↗ alpha.dev</span>
+          </div>
+        </div>
+        <div class="d3-card">
+          <div class="d3-card-top">
+            <div class="d3-card-title">Project Beta</div>
+            <span class="live" style="font-size:10px;">Live</span>
+          </div>
+          <div class="d3-card-meta">
+            <span class="stk stk-p">Next.js</span><span class="stk">Supabase</span>
+          </div>
+          <div class="d3-card-desc">Full-stack SaaS with real-time features and production monitoring.</div>
+          <div class="d3-card-footer">
+            <span class="mc mc-p">⚡ 18d</span>
+            <span class="d3-url">↗ beta.dev</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="eval-box">
+    <div class="eval-title">Evaluate this direction</div>
+    <div class="eval-grid">
+      <div class="eval-item"><div class="eval-dot"></div>Work visible immediately — no scroll required for Linh (fast scanner)</div>
+      <div class="eval-item"><div class="eval-dot"></div>Filter chips surface referral-source smart defaults (GitHub → Technical tab)</div>
+      <div class="eval-item"><div class="eval-dot"></div>Trade-off: identity/bio fully below fold — recruiter might miss personal POV</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- DIRECTION 4: GLOW DARK                     -->
+<!-- ══════════════════════════════════════════ -->
+<div class="direction" id="d4">
+  <div class="dir-header">
+    <div class="dir-num">Direction 04</div>
+    <div class="dir-title">Glow Dark</div>
+    <div class="dir-desc">Maximum Velocity energy. Deep dark background, ambient purple glow, gradient headline. High visual impact, premium feel. Cảm giác: crypto/Web3 aesthetic applied to developer portfolio — bold, confident, memorable.</div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-browser">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <div class="url-bar">chinh.dev</div>
+    </div>
+    <div class="d4-wrap">
+      <div class="d4-bg-glow"></div>
+      <div class="d4-bg-glow2"></div>
+      <div class="d4-nav">
+        <span class="d4-logo">chinh<span>.</span>dev</span>
+        <div class="d4-links"><span class="d4-link">Work</span><span class="d4-link">About</span></div>
+        <button class="d4-cta">Get in touch</button>
+      </div>
+      <div class="d4-hero">
+        <div>
+          <div class="d4-eyebrow">⚡ Backend · Fullstack Engineer</div>
+          <div class="d4-h">Building systems<br>that <span>never go down.</span></div>
+          <div class="d4-sub">Four production apps. 127-day uptime flagship. Shipped in 14 days. Every decision documented. No claims — only proof.</div>
+          <div class="d4-actions">
+            <button class="d4-btn-p">See the evidence</button>
+            <button class="d4-btn-s">Get in touch</button>
+          </div>
+        </div>
+        <div class="d4-card-stack">
+          <div class="d4-mini">
+            <div class="d4-mini-top">
+              <span style="font-size:12px;font-weight:800;letter-spacing:-.02em;">portfolio-v2</span>
+              <span class="live" style="font-size:10px;">Live</span>
+            </div>
+            <div class="d4-mini-meta">
+              <span class="stk stk-p">React 18</span><span class="stk">Spring Boot</span><span class="tag-bs">⚡ Story</span>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px;">
+              <span class="mc mc-p">⚡ 14d ship</span><span class="mc">🟢 127d</span>
+            </div>
+          </div>
+          <div class="d4-mini">
+            <div class="d4-mini-top">
+              <span style="font-size:12px;font-weight:800;letter-spacing:-.02em;">Project Alpha</span>
+              <span class="live" style="font-size:10px;">Live</span>
+            </div>
+            <div class="d4-mini-meta">
+              <span class="stk stk-p">Kotlin</span><span class="stk">PostgreSQL</span><span class="tag-bs">⚡ Story</span>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px;">
+              <span class="mc mc-p">⚡ 21d ship</span><span class="mc">🟢 94d</span>
+            </div>
+          </div>
+          <div class="d4-mini">
+            <div class="d4-mini-top">
+              <span style="font-size:12px;font-weight:800;letter-spacing:-.02em;">Project Beta</span>
+              <span class="live" style="font-size:10px;">Live</span>
+            </div>
+            <div class="d4-mini-meta">
+              <span class="stk stk-p">Next.js</span><span class="stk">Supabase</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="eval-box">
+    <div class="eval-title">Evaluate this direction</div>
+    <div class="eval-grid">
+      <div class="eval-item"><div class="eval-dot"></div>Highest visual impact — ambient glow creates immediate atmosphere</div>
+      <div class="eval-item"><div class="eval-dot"></div>Gradient headline — distinctive, memorable, references Electric Purple palette</div>
+      <div class="eval-item"><div class="eval-dot"></div>Risk: might feel more "startup landing page" than "developer portfolio"</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- DIRECTION 5: EDITORIAL                     -->
+<!-- ══════════════════════════════════════════ -->
+<div class="direction" id="d5">
+  <div class="dir-header">
+    <div class="dir-num">Direction 05</div>
+    <div class="dir-title">Editorial</div>
+    <div class="dir-desc">Asymmetric 2-column layout. Left: minimal identity. Right: featured project prominent với full card. List of other work below. Cảm giác: design portfolio meets developer — refined, intentional, curated.</div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-browser">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <div class="url-bar">chinh.dev</div>
+    </div>
+    <div class="d5-wrap">
+      <div class="d5-nav">
+        <span class="d5-logo">chinh.dev</span>
+        <div class="d5-links"><span class="d5-link">Work</span><span class="d5-link">About</span></div>
+        <button class="d5-cta">Contact</button>
+      </div>
+      <div class="d5-hero">
+        <div class="d5-left">
+          <div class="d5-label">Backend · Fullstack Engineer — 2026</div>
+          <div class="d5-big-h">Proof<br>over<br><em>claims.</em></div>
+          <div class="d5-divider"></div>
+          <div class="d5-sub">Live production output. Documented decisions. Verifiable speed. Every project ships with a build story.</div>
+          <span class="d5-contact">Get in touch</span>
+        </div>
+        <div class="d5-right">
+          <div class="d5-featured">
+            <div class="d5-feat-img">
+              <div class="d5-feat-img-inner">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(168,85,247,.8)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+              </div>
+            </div>
+            <div class="d5-feat-title">portfolio-v2</div>
+            <div class="d5-feat-meta">
+              <span class="live" style="font-size:10px;">Live</span>
+              <span class="stk stk-p">React 18</span><span class="stk">Spring Boot</span>
+              <span class="tag-bs">⚡ Build Story</span>
+            </div>
+            <div style="display:flex;gap:6px;margin-bottom:8px;">
+              <span class="mc mc-p">⚡ 14d ship</span><span class="mc">🟢 127d uptime</span>
+            </div>
+            <div class="d5-feat-desc">Evidence-based developer portfolio. Built with AI agents, full PRD, architecture docs, and build stories from day one.</div>
+          </div>
+          <div class="d5-list">
+            <div class="d5-list-item">
+              <div>
+                <div class="d5-list-title">Project Alpha</div>
+                <div style="font-size:10px;color:var(--t2);">Kotlin · PostgreSQL</div>
+              </div>
+              <div class="d5-list-meta"><span class="live" style="font-size:10px;">Live</span><span class="tag-bs" style="font-size:10px;">⚡</span></div>
+            </div>
+            <div class="d5-list-item">
+              <div>
+                <div class="d5-list-title">Project Beta</div>
+                <div style="font-size:10px;color:var(--t2);">Next.js · Supabase</div>
+              </div>
+              <div class="d5-list-meta"><span class="live" style="font-size:10px;">Live</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="eval-box">
+    <div class="eval-title">Evaluate this direction</div>
+    <div class="eval-grid">
+      <div class="eval-item"><div class="eval-dot"></div>Asymmetric layout — editorial, unique among developer portfolios</div>
+      <div class="eval-item"><div class="eval-dot"></div>Featured project prominent — best work gets most space</div>
+      <div class="eval-item"><div class="eval-dot"></div>Identity + work visible simultaneously — no scroll needed for either</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- DIRECTION 6: BENTO GRID                    -->
+<!-- ══════════════════════════════════════════ -->
+<div class="direction" id="d6">
+  <div class="dir-header">
+    <div class="dir-num">Direction 06</div>
+    <div class="dir-title">Bento Grid</div>
+    <div class="dir-desc">Bento box hero với varied cell sizes. Hero copy, live metrics, featured project, stack, và bio đều visible above fold trong một grid. Cảm giác: modern SaaS, visually rich, high information density với hierarchy.</div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-browser">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <div class="url-bar">chinh.dev</div>
+    </div>
+    <div class="d6-wrap">
+      <div class="d6-nav">
+        <span class="d6-logo">chinh.dev</span>
+        <div class="d6-links"><span class="d6-link">Work</span><span class="d6-link">About</span><span class="d6-link">Contact</span><button class="d6-cta">Get in touch</button></div>
+      </div>
+      <div class="d6-bento">
+
+        <!-- Hero cell: 2 wide, left -->
+        <div class="d6-cell span2 hero-cell">
+          <div class="d6-hero-tag">Backend · Fullstack · 2026</div>
+          <div class="d6-hero-h">Evidence,<br>not claims.</div>
+          <div class="d6-hero-sub">Live output. Documented process. Verifiable speed.</div>
+          <div class="d6-hero-btn">View work →</div>
+        </div>
+
+        <!-- Uptime metric -->
+        <div class="d6-cell metric-cell accent-cell">
+          <div class="d6-metric-label">Flagship uptime</div>
+          <div class="d6-metric-val" style="color:var(--p400);">127d</div>
+          <div class="d6-metric-sub"><span class="live" style="font-size:10px;">production</span></div>
+        </div>
+
+        <!-- Ship speed metric -->
+        <div class="d6-cell metric-cell">
+          <div class="d6-metric-label">Shipped in</div>
+          <div class="d6-metric-val" style="color:var(--green);">14d</div>
+          <div class="d6-metric-sub">idea → live</div>
+        </div>
+
+        <!-- Featured project: 2 wide -->
+        <div class="d6-cell span2" style="border-color:rgba(168,85,247,.2);box-shadow:var(--glowS);">
+          <div class="d6-card-title" style="font-size:14px;font-weight:800;">portfolio-v2</div>
+          <div class="d6-card-meta">
+            <span class="live" style="font-size:10px;margin-right:2px;">Live</span>
+            <span class="stk stk-p">React 18</span><span class="stk">Spring Boot</span><span class="stk">Oracle A1</span>
+          </div>
+          <div class="d6-card-meta"><span class="tag-bs">⚡ Build Story</span><span class="mc mc-p" style="font-size:10px;">⚡ 14d ship</span></div>
+          <div class="d6-card-desc">Evidence-based developer portfolio. Full PRD, architecture docs, AI agents — the process is the proof.</div>
+        </div>
+
+        <!-- Stack cell -->
+        <div class="d6-cell">
+          <div class="d6-stack-label">Current stack</div>
+          <div class="d6-stk-grid">
+            <span class="stk stk-p">Kotlin</span><span class="stk stk-p">Spring Boot</span>
+            <span class="stk stk-p">React 18</span><span class="stk stk-p">PostgreSQL</span>
+            <span class="stk">Docker</span><span class="stk">Vercel</span><span class="stk">Oracle A1</span>
+          </div>
+        </div>
+
+        <!-- Bio cell -->
+        <div class="d6-cell">
+          <div class="d6-bio-label">Engineering POV</div>
+          <div class="d6-bio-text">I build systems that stay up, ship fast, and leave a paper trail. Speed without documentation is just debt.</div>
+        </div>
+
+        <!-- Projects count -->
+        <div class="d6-cell metric-cell">
+          <div class="d6-metric-label">Live projects</div>
+          <div class="d6-metric-val" style="color:var(--t0);">4</div>
+          <div class="d6-metric-sub">all with live URLs</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="eval-box">
+    <div class="eval-title">Evaluate this direction</div>
+    <div class="eval-grid">
+      <div class="eval-item"><div class="eval-dot"></div>Everything above fold — hero, metrics, project, stack, bio all visible</div>
+      <div class="eval-item"><div class="eval-dot"></div>Highest information density — rewards both fast scanners and deep readers</div>
+      <div class="eval-item"><div class="eval-dot"></div>Complexity risk: requires careful content curation to avoid visual chaos</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-prompt">
+  <h3>Bạn thích hướng nào?</h3>
+  <p>Chọn một hướng, combine elements từ nhiều hướng, hoặc dùng một hướng làm base và iterate. Không có câu trả lời sai.</p>
+</div>
+
+</body>
+</html>

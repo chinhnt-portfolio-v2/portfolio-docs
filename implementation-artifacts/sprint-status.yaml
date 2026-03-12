@@ -1,0 +1,135 @@
+# generated: 2026-03-03
+# project: portfolio-v2
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: i:/portfolio-v2/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-03-03
+project: portfolio-v2
+project_key: NOKEY
+tracking_system: file-system
+story_location: i:/portfolio-v2/_bmad-output/implementation-artifacts
+
+development_status:
+  # ─────────────────────────────────────────────────────────────
+  # Epic 1: Portfolio Static Showcase
+  # Goal: Recruiter can visit the portfolio, discover and explore
+  #       projects, read context, navigate fully from any device,
+  #       in Vietnamese or English, with full accessibility and
+  #       complete design system.
+  # ─────────────────────────────────────────────────────────────
+  epic-1: done
+  1-1-initialize-portfolio-fe-project: done
+  1-2-app-shell-design-system-theme-toggle: done
+  1-3-project-gallery-hero-section: done
+  1-4-project-detail-page: done
+  1-5-about-skills-availability: done
+  1-6-internationalization-vi-en: done
+  1-7-1-keyboard-navigation-screen-reader-accessibility: done
+  1-7-2-visual-accessibility-color-contrast-responsive-verification: done
+  1-8-spring-physics-animations: done
+  epic-1-retrospective: done
+
+  # ─────────────────────────────────────────────────────────────
+  # Epic 2: Platform Backend Core & Infrastructure
+  # Goal: Platform BE is deployed on Oracle A1, Nginx running,
+  #       PostgreSQL schema correct, CI/CD active — Owner can hit
+  #       /api-docs and see the full API contract.
+  # ─────────────────────────────────────────────────────────────
+  epic-2: done
+  2-1-initialize-platform-be-project: done
+  2-2-database-schema-core-entities: done
+  2-3-structured-error-handler-openapi: done
+  2-4-0-oracle-a1-server-provisioning: done        # GCR + Neon deployed (Oracle abandoned)
+  2-4-1-nginx-reverse-proxy-ssl-websocket-support: done  # Obsolete — Cloud Run handles TLS natively
+  2-4-2-github-actions-ci-cd-pipeline: done
+  2-4-3-database-backup-automation: done           # Neon free tier has built-in PITR (1-day retention)
+  epic-2-retrospective: done
+
+  # ─────────────────────────────────────────────────────────────
+  # Epic 3: Live Evidence Layer
+  # Goal: Recruiter sees real-time health metrics on project cards
+  #       — proving demo apps are actually running in production —
+  #       with graceful degradation when data is offline.
+  # ─────────────────────────────────────────────────────────────
+  epic-3: in-progress
+  3-1-health-metrics-polling-pipeline-be: done
+  3-2-github-webhook-metrics-refresh-be: review
+  3-3-websocket-server-metrics-broadcast-be: backlog
+  3-4-websocket-client-metrics-cards-fe: backlog
+  3-5-metrics-staleness-auto-hide-fe: backlog
+  3-6-live-github-contribution-graph-fe-be: backlog
+  3-7-config-only-demo-app-registration-be: backlog
+  epic-3-retrospective: optional
+
+  # ─────────────────────────────────────────────────────────────
+  # Epic 4: Recruiter Contact & Engagement
+  # Goal: Recruiter contacts Chính via frictionless form;
+  #       portfolio intelligently adapts to referral context and
+  #       returning visit behavior.
+  # ─────────────────────────────────────────────────────────────
+  epic-4: backlog
+  4-1-contact-form-backend-submission-fe-be: backlog
+  4-2-animated-success-confirmation-fe: backlog
+  4-3-rate-limiting-spam-protection-be: backlog
+  4-4-referral-tracking-contextual-messaging-fe: backlog
+  4-5-returning-visitor-experience-fe: backlog
+  epic-4-retrospective: optional
+
+  # ─────────────────────────────────────────────────────────────
+  # Epic 5: Platform Auth & Demo App Identity
+  # Goal: Demo app users authenticate securely (Google OAuth2),
+  #       sessions are managed, users access only their own data
+  #       — enabling Wallet App launch.
+  # ─────────────────────────────────────────────────────────────
+  epic-5: backlog
+  5-1-jwt-infrastructure-spring-security-config-be: backlog
+  5-2-email-password-registration-login-be: backlog
+  5-3-google-oauth2-login-be: backlog
+  5-4-session-refresh-logout-be: backlog
+  5-5-user-data-isolation-jwks-endpoint-be: backlog
+  epic-5-retrospective: optional
+
+  # ─────────────────────────────────────────────────────────────
+  # Epic 6: Owner Admin & Analytics
+  # Goal: Owner manages portfolio content, reviews contact
+  #       inquiries, tracks engagement — no code changes needed,
+  #       only config file + git push.
+  # ─────────────────────────────────────────────────────────────
+  epic-6: backlog
+  6-1-admin-contact-inquiries-endpoint-be: backlog
+  6-2-admin-analytics-endpoint-be: backlog
+  6-3-plausible-analytics-embed-fe: backlog
+  6-4-1-fe-config-management-projects-ts: backlog
+  6-4-2-be-config-management-showcase-yml: backlog
+  6-4-3-automated-smoke-tests-ci-gate: backlog
+  epic-6-retrospective: optional
