@@ -345,7 +345,7 @@ public class CorsConfig implements WebMvcConfigurer {
 ### Repository Structure
 
 This story creates the `portfolio-platform` repository:
-- **GitHub org:** `chinh-dev`
+- **GitHub org:** `chinhnt-portfolio-v2`
 - **Repo name:** `portfolio-platform`
 - **Deploy target:** Oracle A1 ARM (always-free tier)
 - **NOT co-located** with `portfolio-fe` (separate repos by architecture decision)

@@ -521,6 +521,14 @@ claude-sonnet-4-6
 - All 28 unit tests pass (HmacVerificationServiceTest + GitHubWebhookControllerTest + MetricsAggregationServiceTest + GlobalExceptionHandlerTest)
 - Integration tests have pre-existing Docker/Testcontainers issues unrelated to this story
 
+---
+
+### Review Follow-ups (AI)
+
+- [x] [AI-Review][MEDIUM] Added missing test for "debounce after 5 seconds triggers refresh" - test added via reflection to set lastTriggerTime to 6 seconds ago
+- [x] [AI-Review][LOW] Added test for different projects not interfering with debounce
+- [x] [AI-Review][INFO] DTOs (GitHubPushEvent, GitHubCommit, Repository) created but unused - parse JSON manually per design decision - acceptable
+
 **Key Design Decisions:**
 - Parse JSON manually using Jackson `JsonNode` instead of full DTO deserialization (simpler, less error-prone)
 - Return 200 for unknown repos and parse errors to prevent GitHub retry storms
