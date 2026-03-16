@@ -97,13 +97,13 @@ development_status:
   #       portfolio intelligently adapts to referral context and
   #       returning visit behavior.
   # ─────────────────────────────────────────────────────────────
-  epic-4: backlog
-  4-1-contact-form-backend-submission-fe-be: backlog
-  4-2-animated-success-confirmation-fe: backlog
-  4-3-rate-limiting-spam-protection-be: backlog
-  4-4-referral-tracking-contextual-messaging-fe: backlog
-  4-5-returning-visitor-experience-fe: backlog
-  epic-4-retrospective: optional
+  epic-4: done
+  4-1-contact-form-backend-submission-fe-be: done
+  4-2-animated-success-confirmation-fe: done
+  4-3-rate-limiting-spam-protection-be: done
+  4-4-referral-tracking-contextual-messaging-fe: done
+  4-5-returning-visitor-experience-fe: done
+  epic-4-retrospective: done
 
   # ─────────────────────────────────────────────────────────────
   # Epic 5: Platform Auth & Demo App Identity
