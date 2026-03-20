@@ -135,3 +135,7 @@ development_status:
   6-4-2-be-config-management-showcase-yml: done
   6-4-3-automated-smoke-tests-ci-gate: done
   epic-6-retrospective: optional
+
+  # Smoke tests (FR-R7)
+  smoke-tests-rest: done   # POST contact + GET analytics
+  smoke-tests-websocket: done # WS initial snapshot on connect
