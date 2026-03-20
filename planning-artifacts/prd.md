@@ -411,7 +411,7 @@ Build Wallet App trên nền Platform BE đã stable. Focus vào real business d
 portfolio-v2 gồm hai hệ thống độc lập với concerns riêng biệt:
 
 - **Portfolio FE**: Vite SPA, deployed to Vercel. Static single-page app phục vụ recruiter experience. Không cần SEO. Load từ CDN — không phụ thuộc Platform BE để render. **Portfolio FE không yêu cầu recruiter login** — frictionless experience là nguyên tắc tối thượng.
-- **Platform BE**: Spring Boot monolith, deployed to Oracle A1 ARM. Một backend duy nhất phục vụ tất cả clients: Portfolio FE và tất cả demo app frontends. Provides shared auth, business APIs cho từng demo app, metrics aggregation, và platform APIs. Demo apps là separate frontends — chúng gọi về cùng một Platform BE.
+- **Platform BE**: Spring Boot monolith, deployed to Google Cloud Run (Docker container). Một backend duy nhất phục vụ tất cả clients: Portfolio FE và tất cả demo app frontends. Provides shared auth, business APIs cho từng demo app, metrics aggregation, và platform APIs. Demo apps là separate frontends — chúng gọi về cùng một Platform BE.
 
 ### Portfolio FE — Technical Specifications
 
@@ -446,9 +446,9 @@ portfolio-v2 gồm hai hệ thống độc lập với concerns riêng biệt:
 ### Platform BE — Technical Specifications
 
 **Architecture:**
-- Single Spring Boot monolith on Oracle A1 ARM
+- Single Spring Boot monolith deployed as Docker container on Google Cloud Run
 - Package structure must maintain strict separation between `auth`, `platform`, and `apps` concerns from day one — enables future service extraction without refactoring
-- Nginx reverse proxy in front of Spring Boot: SSL termination, WebSocket upgrade pass-through, rate limiting
+- Cloud Run handles TLS termination natively; `server.forward-headers-strategy: FRAMEWORK` configured for WebSocket and proxy header support; rate limiting via `RateLimitService` (Bucket4j) in `shared/ratelimit/*`
 
 **WebSocket Constraint:**
 Reverse proxy must be explicitly configured to support WebSocket protocol upgrade — see NFR-I5.
@@ -466,11 +466,11 @@ Reverse proxy must be explicitly configured to support WebSocket protocol upgrad
 - Webhooks: Incoming webhooks hỗ trợ cho GitHub push events (triggers health check refresh cho affected projects)
 
 **Rate Limiting:**
-- IP-based rate limiting via Bucket4j (Spring Boot)
-- General endpoints: 100 req/min per IP
-- Contact form: **3 submissions/day per IP + honeypot field** — less restrictive với legitimate users (kể cả shared corporate IPs), effective hơn với spammers
-- AI-powered endpoints: 10 req/min per authenticated user — áp dụng cho các features gọi 3rd-party AI API (ví dụ: generate project insight on hover). Rate limit per authenticated session để tránh abuse cost
-- CORS: Allow-list cho Vercel production domain + localhost dev
+- IP-based rate limiting via Bucket4j (Spring Boot) — `RateLimitService` in `shared/ratelimit/*`
+- General endpoints: 100 req/min per IP — enforced via `RateLimitFilter`
+- Contact form: **3 submissions/day per IP + honeypot field** — enforced in `ContactController`
+- AI-powered endpoints: Phase 2 placeholder — `RateLimitService.tryAi()` returns true (no-op) until AI endpoints are built
+- CORS: Allow-list via `SecurityConfig` — `CORS_ALLOWED_ORIGINS` env var; hardcoded Vercel domains in fallback
 
 ### Platform BE — Endpoint Specification
 
@@ -659,7 +659,7 @@ Oracle A1 ARM:
 
 | ID | Requirement | Target | Context |
 |----|-------------|--------|---------|
-| NFR-R1 | Platform BE uptime | 99.9% (≤ 8.7h downtime/year) | Oracle A1 always-on. Monitored via **UptimeRobot** (free, 5-min checks). Nginx + Spring Boot auto-restart on failure. |
+| NFR-R1 | Platform BE uptime | 99.9% (≤ 8.7h downtime/year) | Google Cloud Run always-on container. Monitored via **UptimeRobot** (free, 5-min checks). Spring Boot auto-restarts inside container on failure. |
 | NFR-R2 | Portfolio FE availability | 99.99% (Vercel CDN SLA) | Static assets — practically always available |
 | NFR-R3 | WebSocket reconnection | Automatic with exponential backoff | Max 3 retry attempts, then fallback to polling |
 | NFR-R4 | Graceful degradation (BE offline) | Portfolio FE fully renders without BE | Dynamic features degrade; static content unaffected |

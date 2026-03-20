@@ -111,12 +111,13 @@ development_status:
   #       sessions are managed, users access only their own data
   #       — enabling Wallet App launch.
   # ─────────────────────────────────────────────────────────────
-  epic-5: backlog
-  5-1-jwt-infrastructure-spring-security-config-be: backlog
-  5-2-email-password-registration-login-be: backlog
-  5-3-google-oauth2-login-be: backlog
-  5-4-session-refresh-logout-be: backlog
-  5-5-user-data-isolation-jwks-endpoint-be: backlog
+  epic-5: done
+  5-1-jwt-infrastructure-spring-security-config-be: done
+  5-2-email-password-registration-login-be: done
+  5-3-google-oauth2-login-be: done
+  5-4-session-refresh-logout-be: done
+  5-5-user-data-isolation-jwks-endpoint-be: done
+  5-6-production-deployment-checklist: done
   epic-5-retrospective: optional
 
   # ─────────────────────────────────────────────────────────────
@@ -125,11 +126,12 @@ development_status:
   #       inquiries, tracks engagement — no code changes needed,
   #       only config file + git push.
   # ─────────────────────────────────────────────────────────────
-  epic-6: backlog
-  6-1-admin-contact-inquiries-endpoint-be: backlog
-  6-2-admin-analytics-endpoint-be: backlog
-  6-3-plausible-analytics-embed-fe: backlog
-  6-4-1-fe-config-management-projects-ts: backlog
-  6-4-2-be-config-management-showcase-yml: backlog
-  6-4-3-automated-smoke-tests-ci-gate: backlog
+  epic-6: done
+  6-1-real-time-analytics-dashboard: done
+  6-2-admin-analytics-endpoint-be: done
+  6-3-admin-contact-inquiries-endpoint-be: done
+  6-3-plausible-analytics-embed-fe: done
+  6-4-1-fe-config-management-projects-ts: done
+  6-4-2-be-config-management-showcase-yml: done
+  6-4-3-automated-smoke-tests-ci-gate: done
   epic-6-retrospective: optional

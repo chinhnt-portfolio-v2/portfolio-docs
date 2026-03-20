@@ -82,7 +82,7 @@ NFRs trực tiếp drive architectural decisions:
   - HMAC-SHA256 webhook verification → GitHub webhook security gate
 
 - **Reliability:**
-  - Platform BE uptime ≥99.9% → Oracle A1 always-on; zero cold start
+  - Platform BE uptime ≥99.9% → Google Cloud Run + Neon always-on; zero cold start
   - WebSocket reconnect with exponential backoff (max 3 retries → polling) → FE-owned decision
   - Graceful degradation: Portfolio FE fully functional without BE
   - Database backup: Daily cron → PostgreSQL dump → Oracle Object Storage
@@ -105,16 +105,17 @@ NFRs trực tiếp drive architectural decisions:
 
 **Hosting constraints (hard):**
 - Portfolio FE → Vercel (free tier) — static SPA only, no server-side execution
-- Platform BE → Oracle A1 ARM (always-free) — Spring Boot, always-on, no cold start
-- Database → PostgreSQL on Oracle A1 (co-located)
-- SSL → Let's Encrypt via Nginx (TLS 1.2+)
+- Platform BE → Google Cloud Run (always-on, containerized) — Spring Boot JAR in Docker container
+- Database → PostgreSQL on Neon (free tier, serverless) — connection pooling via HikariCP
+- SSL → Cloud Run terminates TLS natively — no Nginx, no Let's Encrypt
+- Rate Limiting → Spring Boot `RateLimitService` (Bucket4j) in `shared/ratelimit/*` — not in Nginx
 
 **Technology choices (committed):**
 - Frontend: React + TypeScript + Vite + Tailwind CSS + shadcn/ui + Framer Motion
-- Backend: Spring Boot (Java) + PostgreSQL + Nginx
+- Backend: Spring Boot (Java) + PostgreSQL + Bucket4j rate limiting (no Nginx)
 - Auth: JWT stateless + Google OAuth2 + JWKS public endpoint
 - Monitoring: UptimeRobot (5-min checks); Plausible analytics (external)
-- CI/CD: GitHub Actions → Oracle A1; Vercel auto-deploy on push
+- CI/CD: GitHub Actions → Google Cloud Run; Vercel auto-deploy on push
 
 **External service dependencies:**
 - GitHub API (cached 1h in-memory; fallback to last cached; graceful hide if cache empty)
@@ -161,8 +162,9 @@ returns 403. This boundary is an architectural constraint, not a guideline.
    affects content structure, URL params, display logic.
 
 6. **Rate Limiting** — 3 distinct rule sets (contact: 3/day/IP + honeypot; AI: 5/10min/IP;
-   general: 100/min/IP); implemented in Nginx + Spring Boot shared layer; affects API gateway
-   design.
+   general: 100/min/IP); implemented via `RateLimitService` (Bucket4j) + `RateLimitFilter`
+   in `shared/ratelimit/*`; general tier enforced per-request, contact tier enforced at
+   submission, AI tier is a no-op placeholder (Phase 2).
 
 7a. **BE Config Registry (Runtime)** — Platform BE config file drives polling target registration
     for demo apps; new app = add config entry + restart; zero code change to core; affects
@@ -175,17 +177,18 @@ returns 403. This boundary is an architectural constraint, not a guideline.
 8. **API Contract** — Structured error format `{error: {code, message}}`; OpenAPI at `/api-docs`;
    `/api/v1/` base path; 4 core entities with user-scoped isolation; affects every endpoint design.
 
-9. **WebSocket-Nginx Infrastructure Contract** — Nginx must be configured for HTTP → WebSocket
-   protocol upgrade (`Upgrade: websocket` header passthrough). This is an infrastructure concern,
-   not an application concern. Missing Nginx config = WebSocket entirely non-functional.
-   Must be an explicit architectural decision documented for server setup.
+9. **WebSocket-Cloud Run Infrastructure Contract** — Cloud Run natively handles WebSocket
+   upgrade when `forward-headers-strategy: FRAMEWORK` is set in `application-prod.yml`. The
+   `WebSocketConfig.java` registers `/ws/**` directly — no Nginx required. WebSocketConfig
+   is the sole authority for WS endpoint registration.
 
 10. **Phase 2 Architectural Hooks** — The following Phase 2 features require architectural
     accommodation in Phase 1 code to avoid future refactoring:
     - **Command Palette (FR21):** Requires global keyboard event registry at app root (Phase 1
       must not block keyboard events at section level).
-    - **AI Endpoint Rate Limiting (FR40):** Rate limit tier 3 (5/10min/IP) must be pre-configured
-      in Nginx even if AI endpoints don't exist yet — add commented config block.
+    - **AI Endpoint Rate Limiting (FR40):** `RateLimitService.tryAi()` currently returns
+      true (no-op). When Phase 2 AI endpoints are added, wire `tryAi()` to the AI
+      endpoint handler and set the Bucket4j tier to active.
     - **Video Walkthroughs (FR22):** Project detail page layout must reserve space for video embed
       without layout shift when feature is added.
 
@@ -195,7 +198,7 @@ returns 403. This boundary is an architectural constraint, not a guideline.
 
 Two independent projects with separate deployment lifecycles:
 - **Portfolio FE** → Static SPA (Vite + React + TypeScript) on Vercel CDN
-- **Platform BE** → Spring Boot monolith on Oracle A1 ARM
+- **Platform BE** → Spring Boot monolith on Google Cloud Run + Neon ARM
 
 ### Starter Options Considered
 
@@ -287,9 +290,9 @@ portfolio-fe/
 
 ---
 
-### Selected Starter: Platform BE — Spring Initializr (Spring Boot 3.4.x)
+### Selected Starter: Platform BE — Spring Initializr (Spring Boot 3.5.x)
 
-**Rationale:** Spring Boot 3.4.x chosen over 4.0.3. SB4 released November 2025 (4 months old
+**Rationale:** Spring Boot 3.5.x chosen over 4.0.3. SB4 released November 2025 (4 months old
 at time of writing) — ecosystem not yet fully caught up: `springdoc-openapi` SB4 support in
 progress but no stable release confirmed, Stack Overflow answers still SB3.x-centric. SB3.4.x
 is battle-tested, full ecosystem support, satisfies all PRD requirements. No feature in scope
@@ -318,7 +321,7 @@ curl https://start.spring.io/starter.tgz \
 - Java 21 LTS — stable virtual threads, wide ecosystem, proven in production
   (Java 25 available but 21 preferred: more mature community support, all required libraries
   tested against 21)
-- Spring Boot 3.4.x — Spring Framework 6.x + Jakarta EE 10
+- Spring Boot 3.5.x — Spring Framework 6.x + Jakarta EE 10
 - Maven — predictable CI/CD debugging, safer for solo dev vs Gradle edge cases
 
 **Dependencies Included:**
@@ -656,30 +659,29 @@ npx openapi-typescript http://localhost:8080/api-docs -o src/types/api.d.ts
 **Organization:** `github.com/chinhnt-portfolio-v2/`
 
 **Rationale:** No shared code between FE (TypeScript/React) and BE (Java/Spring Boot). Separate
-deployment targets (Vercel vs Oracle A1). Monorepo adds CI/CD complexity with zero benefit.
+deployment targets (Vercel vs Google Cloud Run + Neon). Monorepo adds CI/CD complexity with zero benefit.
 Type sharing handled via OpenAPI-generated types (not shared code packages). AI planning
 artifacts (PRD, architecture, UX spec) live in a dedicated public docs repo — versioned on git,
 visible as a portfolio artifact, and decoupled from code deployments.
 
 - `chinhnt-portfolio-v2/portfolio-fe` → Vite SPA code + `DECISIONS.md` → Vercel (auto-deploy on push to main)
-- `chinhnt-portfolio-v2/portfolio-platform` → Spring Boot code + `DECISIONS.md` → Oracle A1 (GitHub Actions CI/CD → SSH deploy)
+- `chinhnt-portfolio-v2/portfolio-platform` → Spring Boot code + `DECISIONS.md` → Google Cloud Run + Neon (GitHub Actions CI/CD → SSH deploy)
 - `chinhnt-portfolio-v2/portfolio-docs` → Planning artifacts (`brainstorming/`, `planning-artifacts/`) → GitHub (public, manual push)
 
-**Nginx configuration responsibilities:**
-- SSL termination (Let's Encrypt)
-- HTTP → WebSocket protocol upgrade (`Upgrade: websocket` header passthrough) — **must be
-  explicitly configured; missing = WebSocket entirely non-functional**
-- Rate limiting (general: 100/min/IP)
+**Cloud Run configuration responsibilities:**
+- TLS termination handled natively by Cloud Run (no Nginx, no Let's Encrypt)
+- `server.forward-headers-strategy: FRAMEWORK` in `application-prod.yml` — required for WebSocket upgrade and `X-Forwarded-*` header passthrough
+- Rate limiting: handled by `RateLimitService` (Bucket4j) + `RateLimitFilter` in `shared/ratelimit/*`
 - Reverse proxy to Spring Boot (localhost:8080)
 
 **Environment configuration:**
-- Spring profiles: `dev` (H2 or local Postgres) / `prod` (Oracle A1 Postgres)
+- Spring profiles: `dev` (H2 or local Postgres) / `prod` (Google Cloud Run + Neon Postgres)
 - Secrets: environment variables (never committed to repo)
 - FE: Vite `.env` files (`VITE_API_URL`, `VITE_WS_URL`)
 
 **CI/CD:**
 - Portfolio FE: Vercel GitHub integration (push to main → auto-build → CDN deploy)
-- Platform BE: GitHub Actions → `mvn clean package -DskipTests` → SCP JAR to Oracle A1
+- Platform BE: GitHub Actions → `mvn clean package -DskipTests` → SCP JAR to Google Cloud Run + Neon
   → restart service
 
 **Monitoring & Logging:**
@@ -700,7 +702,7 @@ visible as a portfolio artifact, and decoupled from code deployments.
 5. Write `V1__create_users_table.sql` through `V4__create_project_health_table.sql`
 6. Generate initial OpenAPI spec → run `openapi-typescript` in `portfolio-fe`
 7. Verify `vite-plugin-ssg` Vite 7 compatibility; measure LCP baseline
-8. Configure Nginx with WebSocket upgrade support
+8. Configure `server.forward-headers-strategy: FRAMEWORK` in `application-prod.yml` for WebSocket support on Cloud Run
 
 **Cross-Component Dependencies:**
 
@@ -710,7 +712,7 @@ visible as a portfolio artifact, and decoupled from code deployments.
 | `useWebSocket` hook | Zustand `metricsStore` exists | `ProjectCard`, `HeroCardStack` |
 | OpenAPI type generation | BE running + `/api-docs` accessible | All FE API calls |
 | Zustand persist middleware | Store structure finalized | All persistent state |
-| Nginx WebSocket config | Server provisioned | All real-time features |
+| forward-headers-strategy config | Cloud Run provisioned | All real-time features |
 
 ## Implementation Patterns & Consistency Rules
 
@@ -1162,7 +1164,7 @@ Three repositories under GitHub Organization `chinhnt-portfolio-v2`, deployed in
 | Repo | Stack | Deployment | Branch strategy |
 |---|---|---|---|
 | `portfolio-fe` | Vite + React + TypeScript | Vercel | `main` → auto-deploy |
-| `portfolio-platform` | Spring Boot 3.4.x + Java 21 | Oracle A1 | `main` → GitHub Actions CI/CD |
+| `portfolio-platform` | Spring Boot 3.5.x + Java 21 | Google Cloud Run | `main` → GitHub Actions CI/CD |
 | `portfolio-docs` | Markdown docs + BMAD tooling | GitHub (public) | `main` → manual push |
 
 ---
@@ -1322,15 +1324,11 @@ portfolio-platform/
 │
 ├── .github/
 │   └── workflows/
-│       └── ci-cd.yml                 ← Build + test → SSH deploy to Oracle A1
-│
-├── nginx/
-│   └── portfolio.conf                ← SSL, WS upgrade, rate limit, reverse proxy
+│       └── ci-cd.yml                 ← Build + test → Cloud Run deploy via gcloud CLI
 │
 ├── deploy/
-│   ├── portfolio-platform.service    ← systemd unit file (Oracle A1 daemon)
-│   ├── deploy.sh                     ← Stop service → copy JAR → start service
-│   └── backup.sh                     ← pg_dump → gzip → Oracle Object Storage (cron daily)
+│   ├── deploy.sh                     ← gcloud run deploy (Cloud Run — no systemd on container)
+│   └── backup.sh                     ← pg_dump → gzip → Neon backup or Object Storage (cron daily)
 │
 ├── src/
 │   ├── main/
@@ -1407,7 +1405,7 @@ portfolio-platform/
 │   │   └── resources/
 │   │       ├── application.yml               ← Shared config
 │   │       ├── application-dev.yml           ← Local PostgreSQL, debug logging
-│   │       ├── application-prod.yml          ← Oracle A1 PostgreSQL, info logging
+│   │       ├── application-prod.yml          ← Cloud Run config, Neon PostgreSQL, info logging
 │   │       ├── demo-apps.yml                 ← Config-driven demo app registry (FR33)
 │   │       └── db/
 │   │           └── migration/
@@ -1600,7 +1598,7 @@ In-memory cache (Caffeine, Caffeine spec: maximumSize=100, expireAfterWrite=3600
 | i18n (FR41–42) | `stores/languageStore`, `i18n/*`, `lib/referral.ts` | — |
 | Platform Auth (FR24–29) | token handling in fetch hooks | `auth/*`, `shared/security/SecurityConfig` |
 | Metrics Platform (FR30–34, FR48) | `hooks/useWebSocket`, `stores/metricsStore` | `platform/metrics/*`, `platform/websocket/*`, `platform/webhook/*`, `platform/github/*` |
-| Admin (FR35–40) | — | `platform/admin/*`, `shared/ratelimit/*`, `nginx/portfolio.conf` |
+| Admin (FR35–40) | — | `platform/admin/*`, `shared/ratelimit/*`, `RateLimitService` |
 | API Contract (FR49–51) | `types/api.d.ts` (generated) | `shared/error/*`, all Controller + Dto classes |
 
 ---
@@ -1660,7 +1658,7 @@ git push origin main
 
 # BE — GitHub Actions ci-cd.yml on push to main:
 #   1. mvn clean package -DskipTests
-#   2. SCP target/portfolio-platform.jar to Oracle A1
+#   2. SCP target/portfolio-platform.jar to Google Cloud Run + Neon
 #   3. SSH: sudo systemctl restart portfolio-platform
 ```
 
@@ -1672,7 +1670,7 @@ git push origin main
 
 **Decision Compatibility:**
 All technology choices are compatible: Vite 7.3.1 + React 18 + TypeScript + Tailwind CSS v4 +
-shadcn/ui 2.4.x are validated together. Spring Boot 3.4.x + Java 21 LTS + PostgreSQL + Flyway +
+shadcn/ui 2.4.x are validated together. Spring Boot 3.5.x + Java 21 LTS + PostgreSQL + Flyway +
 Caffeine are a proven, stable stack. OpenAPI-generated types (`openapi-typescript`) bridge FE/BE
 type safety without shared packages. No version conflicts identified.
 
@@ -1698,7 +1696,7 @@ All 51 FRs verified architecturally supported across 9 FR categories:
 - FR18–23, FR44–47: Nav & Appearance → `components/layout/*`, `constants/motion.ts`
 - FR24–29: Auth → `auth/*`, `shared/security/SecurityConfig`
 - FR30–34, FR48: Metrics Platform → `platform/metrics/*`, `platform/webhook/*`, `platform/github/*`
-- FR35–40: Admin → `platform/admin/*`, `nginx/portfolio.conf`
+- FR35–40: Admin → `platform/admin/*`, `shared/ratelimit/*`
 - FR41–42: i18n → `stores/languageStore`, `i18n/*`, `lib/referral.ts`
 - FR49–51: API Contract → `shared/error/*`, all Controller + Dto classes
 
@@ -1711,14 +1709,14 @@ All 51 FRs verified architecturally supported across 9 FR categories:
   added to `ContactForm.tsx` spec — BE validates field is empty on POST `/api/v1/contact-submissions`.
 
 All remaining NFRs (performance, security, accessibility, observability, compliance) fully covered
-by Nginx rate limiting, Spring Security, WCAG-2.1 AA patterns, UptimeRobot + Logback, NFR-O4
+by Bucket4j rate limiting, Spring Security, WCAG-2.1 AA patterns, UptimeRobot + Logback, NFR-O4
 no-PII-in-logs rule.
 
 ### Implementation Readiness Validation ✅
 
 **Decision Completeness:**
 All critical decisions documented with exact versions: Vite 7.3.1, React 18, shadcn/ui 2.4.x,
-Tailwind CSS v4, Spring Boot 3.4.x, Java 21, Flyway, Caffeine. Starter commands documented for
+Tailwind CSS v4, Spring Boot 3.5.x, Java 21, Flyway, Caffeine. Starter commands documented for
 both repos. Sprint 0 initialization sequence is unambiguous.
 
 **Structure Completeness:**
@@ -1770,7 +1768,7 @@ and added `DECISIONS.md` schema spec + BE coverage rationale.
 
 - [x] Project context thoroughly analyzed (10 cross-cutting concerns mapped)
 - [x] Scale and complexity assessed (personal portfolio, solo dev, free-tier)
-- [x] Technical constraints identified (Oracle A1 ARM, Vercel, WebSocket-Nginx contract)
+- [x] Technical constraints identified (Google Cloud Run, Vercel, WebSocket-Cloud Run contract)
 - [x] Cross-cutting concerns mapped (auth, real-time, motion, i18n, rate limiting, config registry)
 
 **✅ Architectural Decisions**
@@ -1832,7 +1830,7 @@ All 51 FRs and 43 NFRs architecturally supported. No blocking gaps. All importan
 # Initialize portfolio-fe:
 npm create vite@latest portfolio-fe -- --template react-ts
 
-# Initialize portfolio-platform (Spring Boot 3.4.x):
+# Initialize portfolio-platform (Spring Boot 3.5.x):
 curl https://start.spring.io/starter.tgz \
   -d bootVersion=3.4.x -d javaVersion=21 \
   -d dependencies=web,security,data-jpa,postgresql,websocket,oauth2-client,oauth2-resource-server,actuator,validation,devtools \
